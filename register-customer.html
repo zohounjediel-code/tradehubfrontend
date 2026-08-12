@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -18,54 +19,55 @@
 <body class="bg-[color:var(--color-bg)]">
 
 <header class="bg-white border-b border-gray-200">
-  <div class="max-w-md mx-auto px-4 py-3">
+  <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
     <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
       Trade<span class="text-primary">Hub</span>
     </a>
+    <span id="lang-switcher-slot"></span>
   </div>
 </header>
 
 <main class="max-w-md mx-auto px-4 py-10">
-  <h1 class="font-display font-bold text-2xl text-navy mb-1">Créer un compte</h1>
-  <p class="text-sm text-gray-500 mb-6">Rejoins TradeHub pour commander plus facilement.</p>
+  <h1 class="font-display font-bold text-2xl text-navy mb-1" data-i18n="register.title">Créer un compte</h1>
+  <p class="text-sm text-gray-500 mb-6" data-i18n="register.subtitle">Rejoins TradeHub pour commander plus facilement.</p>
 
   <form id="register-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="text-sm text-gray-700 font-medium">Prénom *</label>
+        <label class="text-sm text-gray-700 font-medium" data-i18n="register.firstName">Prénom *</label>
         <input required name="firstName" type="text"
           class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       </div>
       <div>
-        <label class="text-sm text-gray-700 font-medium">Nom *</label>
+        <label class="text-sm text-gray-700 font-medium" data-i18n="register.lastName">Nom *</label>
         <input required name="lastName" type="text"
           class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       </div>
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Téléphone</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="register.phone">Téléphone</label>
       <input name="phone" type="tel"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Email *</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="register.email">Email *</label>
       <input required name="email" type="email"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Mot de passe *</label>
-      <input required name="password" type="password" minlength="6" placeholder="6 caractères minimum"
+      <label class="text-sm text-gray-700 font-medium" data-i18n="register.password">Mot de passe *</label>
+      <input required name="password" type="password" minlength="6" placeholder="6 caractères minimum" data-i18n-placeholder="register.passwordHint"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
 
     <p id="form-error" class="hidden text-sm text-red-600"></p>
 
-    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm" data-i18n="register.submit">
       Créer mon compte
     </button>
 
     <p class="text-xs text-center text-gray-500">
-      Déjà un compte ? <a href="login-shop.html" class="text-primary hover:underline">Se connecter</a>
+      <span data-i18n="register.hasAccount">Déjà un compte ?</span> <a href="login-shop.html" class="text-primary hover:underline" data-i18n="register.login">Se connecter</a>
     </p>
   </form>
 </main>
@@ -81,7 +83,7 @@
     errorEl.classList.add('hidden');
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Création en cours...';
+    submitBtn.textContent = t('register.submitting');
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/customers/register`, {
@@ -96,7 +98,7 @@
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+      if (!res.ok) throw new Error(data.error || t('checkout.genericError'));
 
       setCustomerSession(data.token, data.customer);
       window.location.href = 'index.html';
@@ -104,7 +106,7 @@
       errorEl.textContent = err.message;
       errorEl.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Créer mon compte';
+      submitBtn.textContent = t('register.submit');
     }
   });
 </script>

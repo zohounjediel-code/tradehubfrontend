@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -22,12 +23,15 @@
     <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
       Trade<span class="text-primary">Hub</span>
     </a>
-    <a href="customer-account.html" class="text-sm text-gray-500 hover:text-primary">← Mon compte</a>
+    <div class="flex items-center gap-3">
+      <a href="customer-account.html" class="text-sm text-gray-500 hover:text-primary" data-i18n="account.backToAccount">← Mon compte</a>
+      <span id="lang-switcher-slot"></span>
+    </div>
   </div>
 </header>
 
 <main class="max-w-3xl mx-auto px-4 py-8">
-  <h1 class="font-display font-bold text-2xl text-navy mb-6">Mes commandes</h1>
+  <h1 class="font-display font-bold text-2xl text-navy mb-6" data-i18n="orders.title">Mes commandes</h1>
 
   <div id="orders-content">
     <!-- injecté en JS -->
@@ -38,18 +42,20 @@
 <script>
   requireCustomerAuth();
 
+  const DATE_LOCALES = { fr: 'fr-FR', en: 'en-GB', de: 'de-DE', es: 'es-ES' };
+  const PRICE_LOCALES = { fr: 'fr-FR', en: 'en-GB', de: 'de-DE', es: 'es-ES' };
   function formatDate(iso) {
-    return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(iso).toLocaleDateString(DATE_LOCALES[getLang()] || 'fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
   }
   function formatPrice(value) {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
+    return new Intl.NumberFormat(PRICE_LOCALES[getLang()] || 'fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
   }
 
   function paymentBadge(status) {
     if (status === 'reported') {
-      return `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">⏳ Paiement signalé</span>`;
+      return `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">${t('orders.paymentReported')}</span>`;
     }
-    return `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-red-50 text-red-600">Paiement à effectuer</span>`;
+    return `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-red-50 text-red-600">${t('orders.paymentDue')}</span>`;
   }
 
   function orderCard(order) {
@@ -57,7 +63,7 @@
       <div class="bg-white border border-gray-200 rounded-lg p-5">
         <div class="flex items-center justify-between mb-3">
           <div>
-            <p class="font-display font-bold text-navy">Commande du ${formatDate(order.created_at)}</p>
+            <p class="font-display font-bold text-navy">${t('orders.orderFrom', { date: formatDate(order.created_at) })}</p>
           </div>
           ${paymentBadge(order.payment_status)}
         </div>
@@ -70,11 +76,11 @@
           `).join('')}
         </div>
         <div class="flex justify-between border-t border-gray-100 mt-3 pt-3 font-display font-bold text-navy">
-          <span>Total</span>
+          <span>${t('orders.total')}</span>
           <span>${formatPrice(order.total)}</span>
         </div>
         ${order.payment_status !== 'reported' ? `
-          <a href="confirmation.html?order=${order.id}" class="btn-primary block text-center py-2.5 rounded-md text-sm mt-3">Finaliser le paiement</a>
+          <a href="confirmation.html?order=${order.id}" class="btn-primary block text-center py-2.5 rounded-md text-sm mt-3">${t('orders.finalizePayment')}</a>
         ` : ''}
       </div>
     `;
@@ -88,15 +94,15 @@
         headers: { Authorization: `Bearer ${session.token}` },
       });
       const orders = await res.json();
-      if (!res.ok) throw new Error(orders.error || 'Erreur lors du chargement.');
+      if (!res.ok) throw new Error(orders.error || t('orders.loadError'));
 
       content.innerHTML = orders.length
         ? `<div class="space-y-4">${orders.map(orderCard).join('')}</div>`
         : `
           <div class="text-center py-16">
             <p class="text-5xl mb-4">📦</p>
-            <p class="text-gray-600 mb-4">Tu n'as pas encore passé de commande.</p>
-            <a href="index.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">Explorer le catalogue</a>
+            <p class="text-gray-600 mb-4">${t('orders.noOrders')}</p>
+            <a href="index.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">${t('orders.exploreCatalog')}</a>
           </div>
         `;
     } catch (err) {
@@ -105,6 +111,7 @@
   }
 
   loadOrders();
+  window.addEventListener('i18n:change', loadOrders);
 </script>
 <script src="js/page-nav.js"></script>
 </body>

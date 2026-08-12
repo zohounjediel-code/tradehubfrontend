@@ -7,6 +7,10 @@
 // page-nav.js), pour un en-tête plus sobre.
 // -----------------------------------------------------------------------
 
+function authNavT(key, fallback) {
+  return typeof t === 'function' ? t(key) : fallback;
+}
+
 function renderAuthNav() {
   const container = document.getElementById('auth-nav');
   if (!container) return;
@@ -28,9 +32,10 @@ function renderAuthNav() {
 
   // Personne n'est connecté : boutons de connexion / inscription
   container.innerHTML = `
-    <a href="login-shop.html" class="text-navy hover:text-primary font-medium">Se connecter</a>
-    <a href="register-customer.html" class="btn-primary px-4 py-2 rounded-md text-sm">Créer un compte</a>
+    <a href="login-shop.html" class="text-navy hover:text-primary font-medium">${authNavT('nav.login', 'Se connecter')}</a>
+    <a href="register-customer.html" class="btn-primary px-4 py-2 rounded-md text-sm">${authNavT('nav.createAccount', 'Créer un compte')}</a>
   `;
 }
 
 document.addEventListener('DOMContentLoaded', renderAuthNav);
+window.addEventListener('i18n:change', renderAuthNav);

@@ -16,32 +16,46 @@
 // chargent pas ces scripts-là.
 // -----------------------------------------------------------------------
 
+// Repli sur le texte français si js/i18n.js n'est pas chargé sur cette
+// page (back-office admin/boutique, non traduit).
+function pageNavT(key, fallback) {
+  return typeof t === 'function' ? t(key) : fallback;
+}
+
 const PAGE_NAV_SESSION_KEYS = {
   admin: 'tradehub_admin_session',
   shop: 'tradehub_shop_session',
   customer: 'tradehub_customer_session',
 };
 
-const PAGE_NAV_ROLE_LINKS = {
-  shop: [
-    { href: 'shop-dashboard.html', label: '🏪 Mon espace vendeur' },
-    { href: 'shop-orders.html', label: '📦 Commandes' },
-    { href: 'shop-profile.html', label: 'ℹ️ Mes informations' },
-  ],
-  admin: [
-    { href: 'admin-dashboard.html', label: '🛡️ Boutiques' },
-    { href: 'admin-orders.html', label: '📦 Commandes' },
-    { href: 'admin-messages.html', label: '✉️ Messages' },
-  ],
-};
+// Liens du back-office : ces pages ne sont pas traduites (usage interne),
+// donc toujours en français, indépendamment de la langue choisie.
+function getPageNavRoleLinks() {
+  return {
+    shop: [
+      { href: 'shop-dashboard.html', label: '🏪 Mon espace vendeur' },
+      { href: 'shop-orders.html', label: '📦 Commandes' },
+      { href: 'shop-profile.html', label: 'ℹ️ Mes informations' },
+    ],
+    admin: [
+      { href: 'admin-dashboard.html', label: '🛡️ Boutiques' },
+      { href: 'admin-orders.html', label: '📦 Commandes' },
+      { href: 'admin-messages.html', label: '✉️ Messages' },
+    ],
+  };
+}
 
-const PAGE_NAV_LINKS = [
-  { href: 'index.html', label: '🏠 Accueil' },
-  { href: 'index.html#products', label: '🛍️ Catalogue' },
-  { href: 'how-to-order.html', label: '📦 Comment commander' },
-  { href: 'help-center.html', label: "❓ Centre d'aide" },
-  { href: 'contact.html', label: '✉️ Contact' },
-];
+// Liens généraux du site (pages acheteur, traduits) : fonction plutôt que
+// constante pour refléter la langue courante à chaque appel.
+function getPageNavLinks() {
+  return [
+    { href: 'index.html', label: pageNavT('menu.home', '🏠 Accueil') },
+    { href: 'index.html#products', label: pageNavT('menu.catalog', '🛍️ Catalogue') },
+    { href: 'how-to-order.html', label: pageNavT('menu.howToOrder', '📦 Comment commander') },
+    { href: 'help-center.html', label: pageNavT('menu.helpCenter', "❓ Centre d'aide") },
+    { href: 'contact.html', label: pageNavT('menu.contact', '✉️ Contact') },
+  ];
+}
 
 function pageNavGetSession(key) {
   try {
@@ -94,7 +108,7 @@ function pageNavBackButtonHTML() {
   return `
     <button id="page-nav-back" type="button" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      Retour
+      ${pageNavT('menu.back', 'Retour')}
     </button>
   `;
 }
@@ -104,7 +118,7 @@ function pageNavLinkHTML(l) {
 }
 
 function pageNavLogoutButtonHTML() {
-  return `<button id="page-nav-logout" type="button" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Déconnexion</button>`;
+  return `<button id="page-nav-logout" type="button" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">${pageNavT('menu.logout', 'Déconnexion')}</button>`;
 }
 
 function pageNavDropdownHTML(active) {
@@ -113,7 +127,7 @@ function pageNavDropdownHTML(active) {
     return `
       ${pageNavBackButtonHTML()}
       <div class="border-t border-gray-100 my-1"></div>
-      ${PAGE_NAV_LINKS.map(pageNavLinkHTML).join('')}
+      ${getPageNavLinks().map(pageNavLinkHTML).join('')}
     `;
   }
 
@@ -123,13 +137,13 @@ function pageNavDropdownHTML(active) {
     return `
       ${pageNavBackButtonHTML()}
       <div class="border-t border-gray-100 my-1"></div>
-      ${pageNavLinkHTML({ href: 'index.html', label: '🏠 Accueil' })}
-      ${pageNavLinkHTML({ href: 'index.html#products', label: '🛍️ Catalogue' })}
-      ${pageNavLinkHTML({ href: 'my-orders.html', label: '📦 Mes commandes' })}
-      ${pageNavLinkHTML({ href: 'customer-account.html', label: '👤 Mon compte' })}
-      ${pageNavLinkHTML({ href: 'how-to-order.html', label: '📦 Comment commander' })}
-      ${pageNavLinkHTML({ href: 'help-center.html', label: "❓ Centre d'aide" })}
-      ${pageNavLinkHTML({ href: 'contact.html', label: '✉️ Contact' })}
+      ${pageNavLinkHTML({ href: 'index.html', label: pageNavT('menu.home', '🏠 Accueil') })}
+      ${pageNavLinkHTML({ href: 'index.html#products', label: pageNavT('menu.catalog', '🛍️ Catalogue') })}
+      ${pageNavLinkHTML({ href: 'my-orders.html', label: pageNavT('menu.myOrders', '📦 Mes commandes') })}
+      ${pageNavLinkHTML({ href: 'customer-account.html', label: pageNavT('menu.myAccount', '👤 Mon compte') })}
+      ${pageNavLinkHTML({ href: 'how-to-order.html', label: pageNavT('menu.howToOrder', '📦 Comment commander') })}
+      ${pageNavLinkHTML({ href: 'help-center.html', label: pageNavT('menu.helpCenter', "❓ Centre d'aide") })}
+      ${pageNavLinkHTML({ href: 'contact.html', label: pageNavT('menu.contact', '✉️ Contact') })}
       <div class="border-t border-gray-100 my-1"></div>
       ${pageNavLogoutButtonHTML()}
     `;
@@ -137,7 +151,7 @@ function pageNavDropdownHTML(active) {
 
   // Boutique ou admin connecté(e) : Retour, uniquement leurs raccourcis
   // de travail (pas les liens généraux du catalogue), puis Déconnexion.
-  const roleLinks = (PAGE_NAV_ROLE_LINKS[active.role] || []).map(pageNavLinkHTML).join('');
+  const roleLinks = (getPageNavRoleLinks()[active.role] || []).map(pageNavLinkHTML).join('');
   return `
     ${pageNavBackButtonHTML()}
     <div class="border-t border-gray-100 my-1"></div>
@@ -147,7 +161,41 @@ function pageNavDropdownHTML(active) {
   `;
 }
 
+// Câble les boutons interactifs du menu (retour, déconnexion) -- appelée
+// après chaque (re)génération du contenu du dropdown.
+function wirePageNavDropdown(active) {
+  document.getElementById('page-nav-back').addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = 'index.html';
+    }
+  });
+
+  const logoutBtn = document.getElementById('page-nav-logout');
+  if (logoutBtn && active) {
+    logoutBtn.addEventListener('click', () => pageNavLogout(active.role));
+  }
+}
+
+// Régénère uniquement le contenu du menu (texte des liens) sans toucher à
+// la structure déjà injectée dans l'en-tête -- utilisé au changement de
+// langue, pour éviter d'injecter un deuxième menu ☰.
+function refreshPageNavContent() {
+  const dropdown = document.getElementById('page-nav-dropdown');
+  if (!dropdown) return;
+  const active = pageNavGetActiveSession();
+  dropdown.innerHTML = pageNavDropdownHTML(active);
+  wirePageNavDropdown(active);
+}
+
 function renderPageNav() {
+  if (document.getElementById('page-nav-toggle')) {
+    // Déjà injecté (ex. rappel via i18n:change) : on rafraîchit juste le texte.
+    refreshPageNavContent();
+    return;
+  }
+
   const header = document.querySelector('header');
   if (!header) return;
   const row = header.querySelector(':scope > div');
@@ -186,18 +234,8 @@ function renderPageNav() {
     }
   });
 
-  document.getElementById('page-nav-back').addEventListener('click', () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      window.location.href = 'index.html';
-    }
-  });
-
-  const logoutBtn = document.getElementById('page-nav-logout');
-  if (logoutBtn && active) {
-    logoutBtn.addEventListener('click', () => pageNavLogout(active.role));
-  }
+  wirePageNavDropdown(active);
 }
 
 document.addEventListener('DOMContentLoaded', renderPageNav);
+window.addEventListener('i18n:change', renderPageNav);

@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -19,10 +20,10 @@
 
 <div class="bg-navy text-gray-300 text-xs">
   <div class="max-w-7xl mx-auto px-4 py-1.5 flex justify-between items-center">
-    <p>🌍 Livraison dans plus de 190 pays</p>
-    <div class="flex gap-4">
-      <a href="#" class="hover:text-white">Aide</a>
-      <span>FR / EUR</span>
+    <p data-i18n="topbar.shipping">🌍 Livraison dans plus de 190 pays</p>
+    <div class="flex gap-4 items-center">
+      <a href="#" class="hover:text-white" data-i18n="topbar.help">Aide</a>
+      <span id="lang-switcher-slot"></span>
     </div>
   </div>
 </div>
@@ -33,7 +34,7 @@
       Trade<span class="text-primary">Hub</span>
     </a>
     <form action="#" onsubmit="return false;" class="flex-1 flex">
-      <input id="search-input" type="text" placeholder="Rechercher un produit, une catégorie, un fournisseur..."
+      <input id="search-input" type="text" placeholder="Rechercher un produit, une catégorie, un fournisseur..." data-i18n-placeholder="search.placeholder"
         class="flex-1 border border-gray-300 rounded-l-md px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       <button id="search-btn" class="btn-primary rounded-r-md px-5 flex items-center justify-center">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -46,14 +47,14 @@
     <a href="cart.html" id="cart-nav-link" class="relative flex items-center gap-2 text-navy shrink-0">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
       <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-primary text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
-      <span class="hidden sm:inline text-sm font-medium">Panier</span>
+      <span class="hidden sm:inline text-sm font-medium" data-i18n="nav.cartLabel">Panier</span>
     </a>
   </div>
 </header>
 
 <main class="max-w-7xl mx-auto px-4 py-8">
   <nav class="text-xs text-gray-500 mb-4">
-    <a href="index.html" class="hover:text-primary">Accueil</a> /
+    <a href="index.html" class="hover:text-primary" data-i18n="breadcrumb.home">Accueil</a> /
     <span id="breadcrumb-category"></span> /
     <span id="breadcrumb-name" class="text-gray-700"></span>
   </nav>
@@ -63,13 +64,13 @@
   </div>
 
   <section class="mt-16">
-    <h2 class="font-display font-bold text-xl text-navy mb-4">Produits similaires</h2>
+    <h2 class="font-display font-bold text-xl text-navy mb-4" data-i18n="product.similarProducts">Produits similaires</h2>
     <div id="related-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4"></div>
   </section>
 </main>
 
 <footer class="bg-navy text-gray-400 text-sm mt-8">
-  <div class="max-w-7xl mx-auto px-4 py-8 text-center text-xs">
+  <div class="max-w-7xl mx-auto px-4 py-8 text-center text-xs" data-i18n="footer.copyright">
     © 2026 TradeHub — Projet de démonstration à but pédagogique.
   </div>
 </footer>
@@ -97,7 +98,7 @@
 
   async function loadProduct() {
     if (!slug) {
-      document.getElementById('product-detail').innerHTML = `<p class="text-gray-500">Produit non spécifié.</p>`;
+      document.getElementById('product-detail').innerHTML = `<p class="text-gray-500">${t('product.notSpecified')}</p>`;
       return;
     }
 
@@ -105,7 +106,7 @@
     try {
       p = await api.getProduct(slug);
     } catch {
-      document.getElementById('product-detail').innerHTML = `<p class="text-gray-500">Ce produit est introuvable.</p>`;
+      document.getElementById('product-detail').innerHTML = `<p class="text-gray-500">${t('product.notFound')}</p>`;
       return;
     }
 
@@ -115,8 +116,8 @@
     document.getElementById('breadcrumb-name').textContent = p.name;
 
     const verifiedBadge = p.supplier_verified
-      ? `<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 111.4-1.4l3.8 3.8 6.8-6.8a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>Fournisseur vérifié</span>`
-      : `<span class="text-xs text-gray-400">Fournisseur non vérifié</span>`;
+      ? `<span class="badge-verified"><svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 111.4-1.4l3.8 3.8 6.8-6.8a1 1 0 011.4 0z" clip-rule="evenodd"/></svg>${t('product.verifiedSupplier')}</span>`
+      : `<span class="text-xs text-gray-400">${t('product.unverifiedSupplier')}</span>`;
 
     document.getElementById('product-detail').innerHTML = `
       <div>
@@ -128,14 +129,14 @@
         <h1 class="font-display font-bold text-2xl text-navy leading-snug">${p.name}</h1>
         <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
           <span class="star-rating">${renderStars(p.rating)}</span>
-          <span>${p.rating.toFixed(1)} · ${p.orders_count.toLocaleString('fr-FR')} commandes</span>
+          <span>${p.rating.toFixed(1)} · ${t('product.orders', { n: p.orders_count.toLocaleString('fr-FR') })}</span>
         </div>
 
         <div class="mt-5 bg-[color:var(--color-primary-light)] rounded-lg p-4">
           <p class="font-display font-extrabold text-3xl text-primary">${formatPrice(p.price)}
-            <span class="text-sm font-normal text-gray-500">/ unité</span>
+            <span class="text-sm font-normal text-gray-500">${t('product.perUnit')}</span>
           </p>
-          <p class="text-xs text-gray-600 mt-1">Commande minimum : <strong>${p.moq} unités</strong></p>
+          <p class="text-xs text-gray-600 mt-1">${t('product.minOrder', { moq: p.moq })}</p>
         </div>
 
         <p class="text-sm text-gray-600 mt-5 leading-relaxed">${p.description}</p>
@@ -149,13 +150,13 @@
         </div>
 
         <div class="mt-6">
-          <p class="text-sm font-medium text-gray-700 mb-2">Quantité (par ${p.moq})</p>
+          <p class="text-sm font-medium text-gray-700 mb-2">${t('product.quantityBy', { moq: p.moq })}</p>
           ${quantityStepper(p.moq)}
         </div>
 
         <div class="mt-6 flex gap-3">
-          <button id="add-to-cart-btn" class="btn-primary flex-1 py-3 rounded-md text-sm">Ajouter au panier</button>
-          <button id="buy-now-btn" class="btn-outline flex-1 py-3 rounded-md text-sm">Commander maintenant</button>
+          <button id="add-to-cart-btn" class="btn-primary flex-1 py-3 rounded-md text-sm">${t('product.addToCart')}</button>
+          <button id="buy-now-btn" class="btn-outline flex-1 py-3 rounded-md text-sm">${t('product.buyNow')}</button>
         </div>
       </div>
     `;
@@ -184,7 +185,7 @@
 
     document.getElementById('add-to-cart-btn').addEventListener('click', async () => {
       await addToCart(buildCartItem());
-      showToast('Ajouté au panier ✓');
+      showToast(t('product.addedToCart'));
     });
 
     document.getElementById('buy-now-btn').addEventListener('click', async () => {
@@ -196,7 +197,7 @@
     const relatedGrid = document.getElementById('related-grid');
     relatedGrid.innerHTML = p.related.length
       ? p.related.map(productCardHTML).join('')
-      : `<p class="text-gray-500 text-sm col-span-full">Aucun produit similaire pour le moment.</p>`;
+      : `<p class="text-gray-500 text-sm col-span-full">${t('product.noSimilar')}</p>`;
   }
 
   document.getElementById('search-btn').addEventListener('click', () => {
@@ -208,6 +209,7 @@
   });
 
   loadProduct();
+  window.addEventListener('i18n:change', loadProduct);
 </script>
 <script src="js/page-nav.js"></script>
 </body>

@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -22,74 +23,75 @@
     <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
       Trade<span class="text-primary">Hub</span>
     </a>
+    <span id="lang-switcher-slot"></span>
   </div>
 </header>
 
 <main class="max-w-md mx-auto px-4 py-10 space-y-6">
-  <h1 class="font-display font-bold text-2xl text-navy">Mon compte</h1>
+  <h1 class="font-display font-bold text-2xl text-navy" data-i18n="account.title">Mon compte</h1>
 
   <!-- ===== Informations personnelles ===== -->
   <form id="profile-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-    <h2 class="font-display font-bold text-navy text-sm">Informations personnelles</h2>
+    <h2 class="font-display font-bold text-navy text-sm" data-i18n="account.personalInfo">Informations personnelles</h2>
 
     <div>
-      <label class="text-sm text-gray-700 font-medium">Email</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="account.email">Email</label>
       <input id="field-email" type="email" disabled
         class="mt-1 w-full border border-gray-200 bg-gray-50 rounded-md px-3 py-2.5 text-sm text-gray-500" />
-      <p class="text-xs text-gray-400 mt-1">L'email de connexion ne peut pas être modifié ici.</p>
+      <p class="text-xs text-gray-400 mt-1" data-i18n="account.emailLocked">L'email de connexion ne peut pas être modifié ici.</p>
     </div>
 
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="text-sm text-gray-700 font-medium">Prénom *</label>
+        <label class="text-sm text-gray-700 font-medium" data-i18n="account.firstName">Prénom *</label>
         <input required name="firstName" type="text"
           class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       </div>
       <div>
-        <label class="text-sm text-gray-700 font-medium">Nom *</label>
+        <label class="text-sm text-gray-700 font-medium" data-i18n="account.lastName">Nom *</label>
         <input required name="lastName" type="text"
           class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
       </div>
     </div>
 
     <div>
-      <label class="text-sm text-gray-700 font-medium">Téléphone</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="account.phone">Téléphone</label>
       <input name="phone" type="tel"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
 
     <p id="profile-error" class="hidden text-sm text-red-600"></p>
-    <p id="profile-success" class="hidden text-sm text-green-600">✓ Informations enregistrées</p>
+    <p id="profile-success" class="hidden text-sm text-green-600" data-i18n="account.saved">✓ Informations enregistrées</p>
 
-    <button type="submit" id="profile-submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+    <button type="submit" id="profile-submit-btn" class="btn-primary w-full py-3 rounded-md text-sm" data-i18n="account.save">
       Enregistrer
     </button>
   </form>
 
   <!-- ===== Mot de passe ===== -->
   <form id="password-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-    <h2 class="font-display font-bold text-navy text-sm">Modifier le mot de passe</h2>
+    <h2 class="font-display font-bold text-navy text-sm" data-i18n="account.changePassword">Modifier le mot de passe</h2>
 
     <div>
-      <label class="text-sm text-gray-700 font-medium">Mot de passe actuel *</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="account.currentPassword">Mot de passe actuel *</label>
       <input required name="currentPassword" type="password"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Nouveau mot de passe *</label>
-      <input required name="newPassword" type="password" minlength="6" placeholder="6 caractères minimum"
+      <label class="text-sm text-gray-700 font-medium" data-i18n="account.newPassword">Nouveau mot de passe *</label>
+      <input required name="newPassword" type="password" minlength="6" placeholder="6 caractères minimum" data-i18n-placeholder="register.passwordHint"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Confirmer le nouveau mot de passe *</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="account.confirmPassword">Confirmer le nouveau mot de passe *</label>
       <input required name="confirmPassword" type="password"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
 
     <p id="password-error" class="hidden text-sm text-red-600"></p>
-    <p id="password-success" class="hidden text-sm text-green-600">✓ Mot de passe mis à jour</p>
+    <p id="password-success" class="hidden text-sm text-green-600" data-i18n="account.passwordUpdated">✓ Mot de passe mis à jour</p>
 
-    <button type="submit" id="password-submit-btn" class="btn-outline w-full py-3 rounded-md text-sm">
+    <button type="submit" id="password-submit-btn" class="btn-outline w-full py-3 rounded-md text-sm" data-i18n="account.changePasswordBtn">
       Changer le mot de passe
     </button>
   </form>
@@ -127,7 +129,7 @@
     profileErrorEl.classList.add('hidden');
     profileSuccessEl.classList.add('hidden');
     profileSubmitBtn.disabled = true;
-    profileSubmitBtn.textContent = 'Enregistrement...';
+    profileSubmitBtn.textContent = t('account.saving');
 
     try {
       const result = await customerApiFetch('/me', {
@@ -145,7 +147,7 @@
       profileErrorEl.classList.remove('hidden');
     } finally {
       profileSubmitBtn.disabled = false;
-      profileSubmitBtn.textContent = 'Enregistrer';
+      profileSubmitBtn.textContent = t('account.save');
     }
   });
 
@@ -155,13 +157,13 @@
     passwordSuccessEl.classList.add('hidden');
 
     if (passwordForm.newPassword.value !== passwordForm.confirmPassword.value) {
-      passwordErrorEl.textContent = 'La confirmation ne correspond pas au nouveau mot de passe.';
+      passwordErrorEl.textContent = t('account.passwordMismatch');
       passwordErrorEl.classList.remove('hidden');
       return;
     }
 
     passwordSubmitBtn.disabled = true;
-    passwordSubmitBtn.textContent = 'Modification...';
+    passwordSubmitBtn.textContent = t('account.changingPassword');
 
     try {
       await customerApiFetch('/me/password', {
@@ -178,7 +180,7 @@
       passwordErrorEl.classList.remove('hidden');
     } finally {
       passwordSubmitBtn.disabled = false;
-      passwordSubmitBtn.textContent = 'Changer le mot de passe';
+      passwordSubmitBtn.textContent = t('account.changePasswordBtn');
     }
   });
 

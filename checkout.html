@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -22,12 +23,15 @@
     <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
       Trade<span class="text-primary">Hub</span>
     </a>
-    <p class="text-xs text-gray-500">🔒 Paiement sécurisé — Étape 2/2</p>
+    <div class="flex items-center gap-3">
+      <p class="text-xs text-gray-500" data-i18n="checkout.secureStep">🔒 Paiement sécurisé — Étape 2/2</p>
+      <span id="lang-switcher-slot"></span>
+    </div>
   </div>
 </header>
 
 <main class="max-w-5xl mx-auto px-4 py-8">
-  <h1 class="font-display font-bold text-2xl text-navy mb-6">Finaliser la commande</h1>
+  <h1 class="font-display font-bold text-2xl text-navy mb-6" data-i18n="checkout.title">Finaliser la commande</h1>
 
   <div id="checkout-content" class="grid md:grid-cols-3 gap-8">
     <!-- injecté en JS -->
@@ -48,11 +52,11 @@
       content.innerHTML = `
         <div class="md:col-span-3 text-center py-20">
           <p class="text-5xl mb-4">🔒</p>
-          <p class="text-gray-600 mb-2">Tu dois être connecté pour passer commande.</p>
-          <p class="text-sm text-gray-400 mb-6">Tes articles restent dans ton panier en attendant.</p>
+          <p class="text-gray-600 mb-2">${t('checkout.mustLogin')}</p>
+          <p class="text-sm text-gray-400 mb-6">${t('checkout.itemsWaiting')}</p>
           <div class="flex gap-3 justify-center">
-            <a href="login-shop.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">Se connecter</a>
-            <a href="register-customer.html" class="btn-outline inline-block px-6 py-3 rounded-md text-sm">Créer un compte</a>
+            <a href="login-shop.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">${t('nav.login')}</a>
+            <a href="register-customer.html" class="btn-outline inline-block px-6 py-3 rounded-md text-sm">${t('nav.createAccount')}</a>
           </div>
         </div>
       `;
@@ -64,7 +68,7 @@
     if (cart.length === 0) {
       content.innerHTML = `
         <div class="md:col-span-3 text-center py-20">
-          <p class="text-gray-600 mb-4">Ton panier est vide, impossible de passer commande.</p>
+          <p class="text-gray-600 mb-4">${t('checkout.emptyCart')}</p>
         </div>
       `;
       return;
@@ -75,31 +79,31 @@
 
     content.innerHTML = `
       <form id="checkout-form" class="md:col-span-2 bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-        <h2 class="font-display font-bold text-navy mb-2">Informations de livraison</h2>
+        <h2 class="font-display font-bold text-navy mb-2">${t('checkout.deliveryInfo')}</h2>
 
         <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-sm text-gray-600">
-          Commande au nom de <strong>${session.customer.name}</strong> (${session.customer.email})
+          ${t('checkout.orderFor', { name: session.customer.name, email: session.customer.email })}
         </div>
 
         <div>
-          <label class="text-sm text-gray-700 font-medium">Téléphone</label>
+          <label class="text-sm text-gray-700 font-medium">${t('checkout.phone')}</label>
           <input name="phone" type="tel" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
         </div>
         <div>
-          <label class="text-sm text-gray-700 font-medium">Adresse de livraison complète *</label>
-          <textarea required name="address" rows="3" placeholder="Rue, ville, code postal, pays"
+          <label class="text-sm text-gray-700 font-medium">${t('checkout.address')}</label>
+          <textarea required name="address" rows="3" placeholder="${t('checkout.addressPlaceholder')}"
             class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
         </div>
 
         <p id="form-error" class="hidden text-sm text-red-600"></p>
 
         <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm mt-2">
-          Confirmer la commande — ${formatPrice(total)}
+          ${t('checkout.confirmOrder', { total: formatPrice(total) })}
         </button>
       </form>
 
       <div class="bg-white border border-gray-200 rounded-lg p-5 h-fit">
-        <h2 class="font-display font-bold text-navy mb-4">Résumé (${count} unités)</h2>
+        <h2 class="font-display font-bold text-navy mb-4">${t('checkout.summary', { n: count })}</h2>
         <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
           ${cart.map(i => `
             <div class="flex gap-3 text-sm">
@@ -108,14 +112,14 @@
               </div>
               <div class="flex-1">
                 <p class="text-gray-700 line-clamp-2">${i.name}</p>
-                <p class="text-xs text-gray-400">Qté : ${i.quantity}</p>
+                <p class="text-xs text-gray-400">${t('checkout.qty', { n: i.quantity })}</p>
               </div>
               <p class="text-gray-700 font-medium">${formatPrice(i.price * i.quantity)}</p>
             </div>
           `).join('')}
         </div>
         <div class="border-t border-gray-200 mt-4 pt-4 flex justify-between font-display font-bold text-navy">
-          <span>Total</span>
+          <span>${t('checkout.total')}</span>
           <span>${formatPrice(total)}</span>
         </div>
       </div>
@@ -140,7 +144,7 @@
     }));
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi en cours...';
+    submitBtn.textContent = t('checkout.sending');
 
     try {
       const session = getCustomerSession();
@@ -157,19 +161,20 @@
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+      if (!res.ok) throw new Error(data.error || t('checkout.genericError'));
 
       await clearCart();
       window.location.href = `confirmation.html?order=${data.orderId}`;
     } catch (err) {
-      errorEl.textContent = err.message || "Une erreur est survenue, réessaie.";
+      errorEl.textContent = err.message || t('checkout.genericErrorRetry');
       errorEl.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Confirmer la commande';
+      submitBtn.textContent = t('checkout.confirmOrderPlain');
     }
   }
 
   render();
+  window.addEventListener('i18n:change', render);
 </script>
 <script src="js/page-nav.js"></script>
 </body>

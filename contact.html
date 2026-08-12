@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -22,42 +23,45 @@
     <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
       Trade<span class="text-primary">Hub</span>
     </a>
-    <a href="index.html" class="text-sm text-gray-500 hover:text-primary">← Retour</a>
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="text-sm text-gray-500 hover:text-primary" data-i18n="contact.backHome">← Retour</a>
+      <span id="lang-switcher-slot"></span>
+    </div>
   </div>
 </header>
 
 <main class="max-w-md mx-auto px-4 py-10">
-  <h1 class="font-display font-bold text-2xl text-navy mb-1">Contacte-nous</h1>
-  <p class="text-sm text-gray-500 mb-6">On te répond dès que possible.</p>
+  <h1 class="font-display font-bold text-2xl text-navy mb-1" data-i18n="contact.title">Contacte-nous</h1>
+  <p class="text-sm text-gray-500 mb-6" data-i18n="contact.subtitle">On te répond dès que possible.</p>
 
   <form id="contact-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
     <div>
-      <label class="text-sm text-gray-700 font-medium">Nom complet *</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="contact.fullName">Nom complet *</label>
       <input required name="name" type="text"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Email *</label>
+      <label class="text-sm text-gray-700 font-medium" data-i18n="contact.email">Email *</label>
       <input required name="email" type="email"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
     </div>
     <div>
-      <label class="text-sm text-gray-700 font-medium">Message *</label>
-      <textarea required name="message" rows="5" placeholder="Comment pouvons-nous t'aider ?"
+      <label class="text-sm text-gray-700 font-medium" data-i18n="contact.message">Message *</label>
+      <textarea required name="message" rows="5" placeholder="Comment pouvons-nous t'aider ?" data-i18n-placeholder="contact.messagePlaceholder"
         class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
     </div>
 
     <p id="form-error" class="hidden text-sm text-red-600"></p>
 
-    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm" data-i18n="contact.send">
       Envoyer le message
     </button>
   </form>
 
   <div id="success-message" class="hidden bg-white border border-gray-200 rounded-lg p-8 text-center">
     <p class="text-5xl mb-4">✅</p>
-    <p class="font-display font-bold text-navy mb-1">Message envoyé !</p>
-    <p class="text-sm text-gray-500">Merci, on revient vers toi bientôt.</p>
+    <p class="font-display font-bold text-navy mb-1" data-i18n="contact.sent">Message envoyé !</p>
+    <p class="text-sm text-gray-500" data-i18n="contact.sentThanks">Merci, on revient vers toi bientôt.</p>
   </div>
 </main>
 
@@ -70,7 +74,7 @@
     e.preventDefault();
     errorEl.classList.add('hidden');
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi...';
+    submitBtn.textContent = t('contact.sending');
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/contact`, {
@@ -83,7 +87,7 @@
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+      if (!res.ok) throw new Error(data.error || t('checkout.genericError'));
 
       form.classList.add('hidden');
       document.getElementById('success-message').classList.remove('hidden');
@@ -91,7 +95,7 @@
       errorEl.textContent = err.message;
       errorEl.classList.remove('hidden');
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Envoyer le message';
+      submitBtn.textContent = t('contact.send');
     }
   });
 </script>
