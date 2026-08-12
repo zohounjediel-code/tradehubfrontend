@@ -903,8 +903,14 @@ function injectLanguageSwitcher() {
   document.querySelectorAll('#lang-switcher-slot').forEach((slot) => {
     const select = document.createElement('select');
     select.setAttribute('aria-label', 'Language / Langue');
-    select.className = 'bg-transparent border border-current/30 rounded text-xs px-1.5 py-0.5 focus:outline-none cursor-pointer';
-    select.innerHTML = SUPPORTED_LANGS.map((l) => `<option value="${l}">${LANG_LABELS[l]}</option>`).join('');
+    // Fond et texte fixes (pas de couleur héritée du contexte) : le menu
+    // déroulant natif du navigateur utilise ce style pour ses options, et
+    // "bg-transparent" + couleur héritée y était souvent illisible (ex.
+    // texte gris clair sur un popup blanc).
+    select.className = 'bg-white text-gray-700 border border-gray-300 rounded text-xs px-1.5 py-0.5 focus:outline-none cursor-pointer';
+    select.innerHTML = SUPPORTED_LANGS
+      .map((l) => `<option value="${l}" class="text-gray-700 bg-white">${LANG_LABELS[l]}</option>`)
+      .join('');
     select.value = currentLang;
     select.addEventListener('change', () => setLang(select.value));
     slot.replaceChildren(select);
