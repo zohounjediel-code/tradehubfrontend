@@ -923,6 +923,79 @@ function applyStaticI18n(root = document) {
   });
 }
 
+// ---------------------------------------------------------------------
+// Traduction du contenu "libre" (noms/descriptions produit) -- saisi par
+// chaque boutique, donc impossible à pré-traduire à la main comme
+// TRANSLATIONS ou CATEGORY_NAMES ci-dessus. Utilise l'API gratuite
+// MyMemory (aucune clé requise), avec un cache localStorage pour éviter
+// de re-traduire le même texte à chaque changement de langue.
+// ---------------------------------------------------------------------
+// Échappe le texte libre (nom produit...) qu'on place à la fois dans un
+// attribut HTML (data-i18n-source) et dans le contenu de l'élément.
+// Dupliquée dans ui.js (chargé sur des pages back-office sans i18n.js) --
+// même implémentation des deux côtés.
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const DYNAMIC_CACHE_KEY = 'tradehub_dynamic_translation_cache';
+let dynamicTranslationCache;
+try {
+  dynamicTranslationCache = JSON.parse(localStorage.getItem(DYNAMIC_CACHE_KEY)) || {};
+} catch {
+  dynamicTranslationCache = {};
+}
+
+function saveDynamicTranslationCache() {
+  try {
+    localStorage.setItem(DYNAMIC_CACHE_KEY, JSON.stringify(dynamicTranslationCache));
+  } catch {
+    // quota localStorage dépassé : tant pis, on retraduira la prochaine fois
+  }
+}
+
+async function translateDynamic(text, lang) {
+  if (!text || !text.trim() || lang === 'fr') return text;
+  const cacheKey = `${lang}::${text}`;
+  if (dynamicTranslationCache[cacheKey]) return dynamicTranslationCache[cacheKey];
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=fr|${lang}`;
+    const res = await fetch(url);
+    if (!res.ok) return text;
+    const data = await res.json();
+    const translated = data?.responseData?.translatedText;
+    if (!translated) return text;
+    dynamicTranslationCache[cacheKey] = translated;
+    saveDynamicTranslationCache();
+    return translated;
+  } catch {
+    return text; // hors ligne / quota dépassé : on garde le texte d'origine plutôt que planter
+  }
+}
+
+// Traduit tous les éléments marqués `data-i18n-source="texte original"`
+// sous `root` -- posé par chaque page au moment où elle génère du
+// contenu dynamique (carte produit, ligne de panier...). L'attribut
+// conserve le texte français d'origine (jamais écrasé) ; seul le
+// textContent affiché change, pour pouvoir re-traduire (ou revenir au
+// français) à chaque changement de langue sans perdre la source.
+async function translateDynamicNodes(root = document) {
+  const lang = currentLang;
+  const nodes = Array.from(root.querySelectorAll('[data-i18n-source]'));
+  await Promise.all(nodes.map(async (el) => {
+    const original = el.getAttribute('data-i18n-source');
+    const translated = await translateDynamic(original, lang);
+    // Si la langue a re-changé entre-temps, on n'écrase pas avec un résultat obsolète.
+    if (currentLang === lang) el.textContent = translated;
+  }));
+}
+
 const LANG_LABELS = { fr: 'FR', en: 'EN', de: 'DE', es: 'ES' };
 
 function injectLanguageSwitcher() {

@@ -208,6 +208,7 @@
     grid.innerHTML = products.length
       ? products.map(productCardHTML).join('')
       : `<p class="col-span-full text-center text-gray-500 py-12">${t('home.noProducts')}</p>`;
+    translateDynamicNodes(grid);
   }
 
   document.getElementById('search-btn').addEventListener('click', () => {

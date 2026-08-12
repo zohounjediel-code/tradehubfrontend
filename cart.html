@@ -65,7 +65,7 @@
           ${productImageHTML(item.image, item.name, 'w-full h-full object-cover')}
         </div>
         <div class="flex-1">
-          <a href="product.html?slug=${item.slug}" class="text-sm font-medium text-navy hover:text-primary">${item.name}</a>
+          <a href="product.html?slug=${item.slug}" class="text-sm font-medium text-navy hover:text-primary" data-i18n-source="${escapeHtml(item.name)}">${escapeHtml(item.name)}</a>
           <p class="text-xs text-gray-500 mt-1">${formatPrice(item.price)} ${t('product.perUnit')} · ${t('product.moq')} ${item.moq}</p>
           <div class="flex items-center gap-3 mt-2">
             <div class="flex items-center border border-gray-300 rounded-md">
@@ -114,6 +114,7 @@
         <a href="checkout.html" class="btn-primary w-full py-3 rounded-md text-sm block text-center">${t('cart.checkout')}</a>
       </div>
     `;
+    translateDynamicNodes(content);
 
     attachCartEvents();
   }

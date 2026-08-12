@@ -19,6 +19,17 @@ function formatPrice(value) {
   return new Intl.NumberFormat(locale, { style: 'currency', currency: 'EUR' }).format(value);
 }
 
+// Échappe le texte libre (nom produit...) qu'on place à la fois dans un
+// attribut HTML (data-i18n-source) et dans le contenu de l'élément.
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function renderStars(rating) {
   const full = Math.round(rating);
   return '★'.repeat(full) + '☆'.repeat(5 - full);
@@ -45,7 +56,7 @@ function productCardHTML(p) {
         ${productImageHTML(p.image_url, p.name, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-300')}
       </div>
       <div class="p-3 flex flex-col gap-1.5 flex-1">
-        <p class="text-sm text-gray-800 line-clamp-2 min-h-[2.5rem]">${p.name}</p>
+        <p class="text-sm text-gray-800 line-clamp-2 min-h-[2.5rem]" data-i18n-source="${escapeHtml(p.name)}">${escapeHtml(p.name)}</p>
         <p class="font-display font-bold text-lg text-[color:var(--color-primary)]">
           ${formatPrice(p.price)} <span class="text-xs font-normal text-gray-500">${uiT('product.perUnit', '/ unité')}</span>
         </p>

@@ -70,7 +70,7 @@
         <div class="space-y-1.5 border-t border-gray-100 pt-3">
           ${order.items.map((it) => `
             <div class="flex justify-between text-sm">
-              <span class="text-gray-700">${it.product_name} × ${it.quantity}</span>
+              <span class="text-gray-700" data-i18n-source="${escapeHtml(it.product_name)}">${escapeHtml(it.product_name)}</span> × ${it.quantity}
               <span class="text-gray-500">${formatPrice(it.unit_price * it.quantity)}</span>
             </div>
           `).join('')}
@@ -105,6 +105,7 @@
             <a href="index.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">${t('orders.exploreCatalog')}</a>
           </div>
         `;
+      translateDynamicNodes(content);
     } catch (err) {
       content.innerHTML = `<p class="text-center text-red-500 py-16">${err.message}</p>`;
     }

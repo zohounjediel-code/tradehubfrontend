@@ -55,7 +55,7 @@
       <div class="border-t border-gray-200 pt-3 space-y-2">
         ${order.items.map((it) => `
           <div class="flex justify-between text-sm">
-            <span class="text-gray-700">${it.product_name} × ${it.quantity}</span>
+            <span class="text-gray-700" data-i18n-source="${escapeHtml(it.product_name)}">${escapeHtml(it.product_name)}</span> × ${it.quantity}
             <span class="text-gray-600">${money(it.unit_price * it.quantity)}</span>
           </div>
         `).join('')}
@@ -157,6 +157,7 @@
         </form>
       </div>
     `;
+    translateDynamicNodes(content);
 
     wireCopyButtons();
 
@@ -216,6 +217,7 @@
         </div>
       </div>
     `;
+    translateDynamicNodes(content);
   }
 
   async function load() {

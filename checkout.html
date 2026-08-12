@@ -111,7 +111,7 @@
                 ${productImageHTML(i.image, i.name, 'w-full h-full object-cover')}
               </div>
               <div class="flex-1">
-                <p class="text-gray-700 line-clamp-2">${i.name}</p>
+                <p class="text-gray-700 line-clamp-2" data-i18n-source="${escapeHtml(i.name)}">${escapeHtml(i.name)}</p>
                 <p class="text-xs text-gray-400">${t('checkout.qty', { n: i.quantity })}</p>
               </div>
               <p class="text-gray-700 font-medium">${formatPrice(i.price * i.quantity)}</p>
@@ -124,6 +124,7 @@
         </div>
       </div>
     `;
+    translateDynamicNodes(content);
 
     document.getElementById('checkout-form').addEventListener('submit', handleSubmit);
   }
