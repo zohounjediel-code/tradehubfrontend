@@ -183,7 +183,7 @@
     // catalogue complet en un clic depuis n'importe quel filtre.
     const nav = document.getElementById('category-nav');
     nav.innerHTML = [
-      `<a href="index.html#products" class="py-2.5 hover:text-primary transition-colors ${!activeCategory ? 'text-primary font-semibold' : ''}">🗂️ ${t('category.all')}</a>`,
+      `<a href="index.html#products" class="py-2.5 hover:text-primary transition-colors ${!activeCategory ? 'text-primary font-semibold' : ''}">${t('category.all')}</a>`,
       ...categories.map(c =>
         `<a href="index.html?category=${c.slug}#products" class="py-2.5 hover:text-primary transition-colors ${activeCategory === c.slug ? 'text-primary font-semibold' : ''}">${c.icon} ${translateCategoryName(c)}</a>`
       ),
@@ -193,7 +193,7 @@
     const grid = document.getElementById('category-grid');
     grid.innerHTML = [
       `<a href="index.html#products" class="bg-white border rounded-lg p-4 text-center hover:border-primary hover:shadow-sm transition-all ${!activeCategory ? 'border-primary' : 'border-gray-200'}">
-        <div class="text-2xl mb-1">🗂️</div>
+        <div class="text-2xl mb-1" aria-hidden="true">&nbsp;</div>
         <p class="text-xs font-medium text-gray-700">${t('category.all')}</p>
       </a>`,
       ...categories.map(c => `
