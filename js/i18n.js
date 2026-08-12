@@ -60,6 +60,7 @@ const TRANSLATIONS = {
     'home.browseByCategory': 'Parcourir par catégorie',
     'home.popularProducts': 'Produits populaires',
     'home.noProducts': 'Aucun produit ne correspond à ta recherche.',
+    'category.all': 'Tous',
 
     // --- Produit (carte + fiche détail) ---
     'product.resultsCount': '{{n}} résultats',
@@ -274,6 +275,7 @@ const TRANSLATIONS = {
     'home.browseByCategory': 'Browse by category',
     'home.popularProducts': 'Popular products',
     'home.noProducts': 'No products match your search.',
+    'category.all': 'All',
 
     'product.resultsCount': '{{n}} results',
     'product.moq': 'MOQ',
@@ -477,6 +479,7 @@ const TRANSLATIONS = {
     'home.browseByCategory': 'Nach Kategorie durchsuchen',
     'home.popularProducts': 'Beliebte Produkte',
     'home.noProducts': 'Kein Produkt entspricht deiner Suche.',
+    'category.all': 'Alle',
 
     'product.resultsCount': '{{n}} Ergebnisse',
     'product.moq': 'MOQ',
@@ -680,6 +683,7 @@ const TRANSLATIONS = {
     'home.browseByCategory': 'Explorar por categoría',
     'home.popularProducts': 'Productos populares',
     'home.noProducts': 'Ningún producto coincide con tu búsqueda.',
+    'category.all': 'Todos',
 
     'product.resultsCount': '{{n}} resultados',
     'product.moq': 'MOQ',
