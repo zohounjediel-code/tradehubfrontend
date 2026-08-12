@@ -204,7 +204,7 @@
 
   document.getElementById('search-btn').addEventListener('click', () => {
     const term = document.getElementById('search-input').value.trim();
-    window.location.href = term ? `index.html?search=${encodeURIComponent(term)}` : 'index.html';
+    window.location.href = term ? `index.html?search=${encodeURIComponent(term)}#products` : 'index.html';
   });
   document.getElementById('search-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('search-btn').click();

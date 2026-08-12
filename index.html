@@ -88,10 +88,10 @@
         </div>
       </div>
       <div class="hidden md:grid grid-cols-2 gap-3">
-        <img src="https://picsum.photos/seed/hero1/300/220" class="rounded-lg object-cover h-full" alt=""/>
-        <img src="https://picsum.photos/seed/hero2/300/220" class="rounded-lg object-cover h-full mt-6" alt=""/>
-        <img src="https://picsum.photos/seed/hero3/300/220" class="rounded-lg object-cover h-full -mt-6" alt=""/>
-        <img src="https://picsum.photos/seed/hero4/300/220" class="rounded-lg object-cover h-full" alt=""/>
+        <img src="https://picsum.photos/seed/hero1/300/220" width="300" height="220" class="rounded-lg object-cover h-full" alt=""/>
+        <img src="https://picsum.photos/seed/hero2/300/220" width="300" height="220" class="rounded-lg object-cover h-full mt-6" alt=""/>
+        <img src="https://picsum.photos/seed/hero3/300/220" width="300" height="220" class="rounded-lg object-cover h-full -mt-6" alt=""/>
+        <img src="https://picsum.photos/seed/hero4/300/220" width="300" height="220" class="rounded-lg object-cover h-full" alt=""/>
       </div>
     </div>
   </section>
@@ -181,13 +181,13 @@
     // Barre de navigation
     const nav = document.getElementById('category-nav');
     nav.innerHTML = categories.map(c =>
-      `<a href="index.html?category=${c.slug}" class="py-2.5 hover:text-primary transition-colors">${c.icon} ${translateCategoryName(c)}</a>`
+      `<a href="index.html?category=${c.slug}#products" class="py-2.5 hover:text-primary transition-colors">${c.icon} ${translateCategoryName(c)}</a>`
     ).join('');
 
     // Grille de catégories
     const grid = document.getElementById('category-grid');
     grid.innerHTML = categories.map(c => `
-      <a href="index.html?category=${c.slug}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-primary hover:shadow-sm transition-all">
+      <a href="index.html?category=${c.slug}#products" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-primary hover:shadow-sm transition-all">
         <div class="text-2xl mb-1">${c.icon}</div>
         <p class="text-xs font-medium text-gray-700">${translateCategoryName(c)}</p>
       </a>
@@ -213,14 +213,25 @@
 
   document.getElementById('search-btn').addEventListener('click', () => {
     const term = document.getElementById('search-input').value.trim();
-    window.location.href = term ? `index.html?search=${encodeURIComponent(term)}` : 'index.html';
+    window.location.href = term ? `index.html?search=${encodeURIComponent(term)}#products` : 'index.html';
   });
   document.getElementById('search-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') document.getElementById('search-btn').click();
   });
 
-  loadCategories();
-  loadProducts();
+  // Quand on arrive avec un filtre (catégorie/recherche), on saute
+  // directement à la section produits -- le simple ancrage "#products"
+  // dans l'URL ne suffit pas : la grille de catégories, chargée en JS,
+  // pousse le contenu vers le bas APRÈS le défilement natif du
+  // navigateur, ce qui décale la cible. On défile donc nous-mêmes une
+  // fois les deux chargements terminés.
+  const shouldJumpToProducts = window.location.hash === '#products';
+  Promise.all([loadCategories(), loadProducts()]).then(() => {
+    if (shouldJumpToProducts) {
+      document.getElementById('products').scrollIntoView();
+    }
+  });
+
   window.addEventListener('i18n:change', () => {
     loadCategories();
     loadProducts();
