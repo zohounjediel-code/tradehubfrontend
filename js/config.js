@@ -5,4 +5,4 @@
 // générée (ex. https://tradehubbackend-production.up.railway.app).
 // -----------------------------------------------------------------------
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://tradehub-backend-production-f5fe.up.railway.app';
