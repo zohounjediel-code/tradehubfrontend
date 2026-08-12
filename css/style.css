@@ -25,9 +25,25 @@
   font-family: 'Manrope', system-ui, sans-serif;
 }
 
+/* Pied de page collé en bas de l'écran (pas juste après le contenu) même
+   quand une page a peu de contenu (ex. panier avec 1-2 articles) : body en
+   colonne flex sur toute la hauteur de l'écran, <main> prend l'espace
+   restant et pousse <footer> tout en bas. Sans effet sur les pages qui ont
+   assez de contenu pour dépasser l'écran -- elles défilent normalement. */
+html {
+  height: 100%;
+}
+
 body {
   background-color: var(--color-bg);
   color: #1f2937;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body > main {
+  flex: 1 0 auto;
 }
 
 /* ---------- Boutons ---------- */
