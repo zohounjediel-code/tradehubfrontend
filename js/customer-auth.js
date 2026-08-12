@@ -36,7 +36,7 @@ function requireCustomerAuth() {
 // Wrapper autour de fetch() qui ajoute automatiquement le token client
 async function customerApiFetch(endpoint, options = {}) {
   const session = getCustomerSession();
-  const res = await fetch(`/api/customers${endpoint}`, {
+  const res = await fetch(`${BACKEND_URL}/api/customers${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

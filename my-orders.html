@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="js/config.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -83,7 +84,7 @@
     const content = document.getElementById('orders-content');
     try {
       const session = getCustomerSession();
-      const res = await fetch('/api/orders/mine', {
+      const res = await fetch(`${BACKEND_URL}/api/orders/mine`, {
         headers: { Authorization: `Bearer ${session.token}` },
       });
       const orders = await res.json();

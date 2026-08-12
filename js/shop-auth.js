@@ -53,7 +53,7 @@ async function shopApiFetch(endpoint, options = {}) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`/api/shops${endpoint}`, { ...options, headers });
+  const res = await fetch(`${BACKEND_URL}/api/shops${endpoint}`, { ...options, headers });
 
   const data = await res.json();
 

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="js/config.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -61,7 +62,7 @@
     const list = document.getElementById('messages-list');
     try {
       const session = getAdminSession();
-      const res = await fetch('/api/contact', {
+      const res = await fetch(`${BACKEND_URL}/api/contact`, {
         headers: { Authorization: `Bearer ${session.token}` },
       });
       const messages = await res.json();
@@ -78,7 +79,7 @@
           const card = e.target.closest('[data-id]');
           const id = card.dataset.id;
           try {
-            const putRes = await fetch(`/api/contact/${id}/read`, {
+            const putRes = await fetch(`${BACKEND_URL}/api/contact/${id}/read`, {
               method: 'PUT',
               headers: { Authorization: `Bearer ${session.token}` },
             });

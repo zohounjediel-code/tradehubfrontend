@@ -37,7 +37,7 @@ function requireAdminAuth() {
 // Wrapper autour de fetch() qui ajoute automatiquement le token admin
 async function adminApiFetch(endpoint, options = {}) {
   const session = getAdminSession();
-  const res = await fetch(`/api/admin${endpoint}`, {
+  const res = await fetch(`${BACKEND_URL}/api/admin${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

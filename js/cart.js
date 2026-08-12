@@ -33,7 +33,7 @@ function saveLocalCart(cart) {
 // ---------- Panier compte (serveur) ----------
 async function cartApiFetch(endpoint, options = {}) {
   const session = typeof getCustomerSession === 'function' ? getCustomerSession() : null;
-  const res = await fetch(`/api/cart${endpoint}`, {
+  const res = await fetch(`${BACKEND_URL}/api/cart${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

@@ -5,7 +5,7 @@
 // utiliser des chemins relatifs ("/api/...").
 // -----------------------------------------------------------------------
 
-const API_BASE = '/api';
+const API_BASE = `${BACKEND_URL}/api`;
 
 async function apiGet(endpoint) {
   const res = await fetch(`${API_BASE}${endpoint}`);

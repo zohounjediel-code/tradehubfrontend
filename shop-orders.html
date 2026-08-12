@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="js/config.js"></script>
 <script>
   tailwind.config = {
     theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
@@ -97,7 +98,7 @@
     btn.disabled = true;
     try {
       const session = getShopSession();
-      const res = await fetch(`/api/orders/${orderId}/payment-proof`, {
+      const res = await fetch(`${BACKEND_URL}/api/orders/${orderId}/payment-proof`, {
         headers: { Authorization: `Bearer ${session.token}` },
       });
       if (!res.ok) {
@@ -118,7 +119,7 @@
     const list = document.getElementById('orders-list');
     try {
       const session = getShopSession();
-      const res = await fetch('/api/shops/me/orders', {
+      const res = await fetch(`${BACKEND_URL}/api/shops/me/orders`, {
         headers: { Authorization: `Bearer ${session.token}` },
       });
       const orders = await res.json();
