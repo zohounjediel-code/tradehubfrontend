@@ -112,7 +112,7 @@
 
     document.title = `${p.name} — TradeHub`;
     document.getElementById('breadcrumb-category').innerHTML =
-      `<a href="index.html?category=${p.category_slug}" class="hover:text-primary">${p.category_name}</a>`;
+      `<a href="index.html?category=${p.category_slug}" class="hover:text-primary">${translateCategoryName({ slug: p.category_slug, name: p.category_name })}</a>`;
     document.getElementById('breadcrumb-name').textContent = p.name;
 
     const verifiedBadge = p.supplier_verified

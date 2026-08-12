@@ -181,7 +181,7 @@
     // Barre de navigation
     const nav = document.getElementById('category-nav');
     nav.innerHTML = categories.map(c =>
-      `<a href="index.html?category=${c.slug}" class="py-2.5 hover:text-primary transition-colors">${c.icon} ${c.name}</a>`
+      `<a href="index.html?category=${c.slug}" class="py-2.5 hover:text-primary transition-colors">${c.icon} ${translateCategoryName(c)}</a>`
     ).join('');
 
     // Grille de catégories
@@ -189,7 +189,7 @@
     grid.innerHTML = categories.map(c => `
       <a href="index.html?category=${c.slug}" class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-primary hover:shadow-sm transition-all">
         <div class="text-2xl mb-1">${c.icon}</div>
-        <p class="text-xs font-medium text-gray-700">${c.name}</p>
+        <p class="text-xs font-medium text-gray-700">${translateCategoryName(c)}</p>
       </a>
     `).join('');
   }

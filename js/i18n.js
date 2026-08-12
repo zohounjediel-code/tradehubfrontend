@@ -885,6 +885,32 @@ function t(key, vars) {
   return interpolate(raw, vars);
 }
 
+// Noms de catégories traduits, par slug -- contrairement aux produits
+// (texte libre saisi par chaque boutique, en nombre croissant), les
+// catégories forment un petit ensemble fixe défini par l'équipe TradeHub :
+// on peut donc les traduire nous-mêmes sans passer par un service de
+// traduction automatique.
+const CATEGORY_NAMES = {
+  electronique: { fr: 'Électronique', en: 'Electronics', de: 'Elektronik', es: 'Electrónica' },
+  textile: { fr: 'Textile & Vêtements', en: 'Textiles & Apparel', de: 'Textilien & Bekleidung', es: 'Textil y Ropa' },
+  machines: { fr: 'Machines industrielles', en: 'Industrial Machinery', de: 'Industriemaschinen', es: 'Maquinaria industrial' },
+  'maison-jardin': { fr: 'Maison & Jardin', en: 'Home & Garden', de: 'Haus & Garten', es: 'Hogar y Jardín' },
+  emballage: { fr: 'Emballage & Impression', en: 'Packaging & Printing', de: 'Verpackung & Druck', es: 'Embalaje e Impresión' },
+  beaute: { fr: 'Beauté & Cosmétiques', en: 'Beauty & Cosmetics', de: 'Schönheit & Kosmetik', es: 'Belleza y Cosmética' },
+  'sport-mobilite': { fr: 'Sport & Mobilité', en: 'Sports & Mobility', de: 'Sport & Mobilität', es: 'Deporte y Movilidad' },
+  'meubles-decoration': { fr: 'Meubles & Décoration', en: 'Furniture & Decor', de: 'Möbel & Deko', es: 'Muebles y Decoración' },
+  'loisirs-creatifs': { fr: 'Loisirs & Créatifs', en: 'Hobbies & Crafts', de: 'Freizeit & Kreatives', es: 'Ocio y Manualidades' },
+  animaux: { fr: 'Animaux', en: 'Pets', de: 'Haustiere', es: 'Mascotas' },
+};
+
+// `category` : objet renvoyé par l'API ({ slug, name, ... }). Retombe sur
+// le nom tel quel si le slug n'est pas dans la liste ci-dessus (nouvelle
+// catégorie pas encore traduite).
+function translateCategoryName(category) {
+  const entry = CATEGORY_NAMES[category.slug];
+  return entry ? (entry[currentLang] || entry.fr) : category.name;
+}
+
 function applyStaticI18n(root = document) {
   root.querySelectorAll('[data-i18n]').forEach((el) => {
     el.textContent = t(el.getAttribute('data-i18n'));
