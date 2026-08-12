@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administration — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-navy min-h-screen flex items-center justify-center">
+
+<main class="max-w-sm w-full px-4">
+  <div class="text-center mb-6">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-white">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+    <p class="text-gray-400 text-xs mt-1 uppercase tracking-wide">Espace administration</p>
+  </div>
+
+  <form id="login-form" class="bg-white rounded-lg p-6 space-y-4">
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Email</label>
+      <input required name="email" type="email"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Mot de passe</label>
+      <input required name="password" type="password"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+
+    <p id="form-error" class="hidden text-sm text-red-600"></p>
+
+    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+      Se connecter
+    </button>
+  </form>
+
+  <p class="text-xs text-center text-gray-400 mt-6">
+    💡 Démo : <code class="bg-white/10 px-1 rounded">admin@tradehub.demo</code> / <code class="bg-white/10 px-1 rounded">AdminDemo1234!</code>
+  </p>
+</main>
+
+<script>
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = document.getElementById('submit-btn');
+    const errorEl = document.getElementById('form-error');
+    errorEl.classList.add('hidden');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.email.value.trim(),
+          password: form.password.value,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+
+      localStorage.setItem('tradehub_admin_session', JSON.stringify({ token: data.token, admin: data.admin }));
+      window.location.href = 'admin-dashboard.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  });
+</script>
+</body>
+</html>

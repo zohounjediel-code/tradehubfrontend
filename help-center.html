@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Centre d'aide — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-10">
+  <h1 class="font-display font-bold text-2xl text-navy mb-2">Centre d'aide</h1>
+  <p class="text-sm text-gray-500 mb-8">Les questions les plus fréquentes sur TradeHub.</p>
+
+  <div class="space-y-4">
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4" open>
+      <summary class="font-semibold text-navy cursor-pointer">Ai-je besoin d'un compte pour commander ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Oui, un compte client est requis pour passer commande — c'est ce qui te permet ensuite de retrouver ton panier et de consulter l'historique de tes commandes. Parcourir le catalogue et remplir ton panier, en revanche, ne nécessite pas de compte.</p>
+    </details>
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4">
+      <summary class="font-semibold text-navy cursor-pointer">C'est quoi le "MOQ" affiché sur chaque produit ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Le MOQ (Minimum Order Quantity) est la quantité minimale que tu peux commander pour ce produit — typique du commerce de gros. La quantité s'ajuste par multiples de ce nombre.</p>
+    </details>
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4">
+      <summary class="font-semibold text-navy cursor-pointer">Que signifie le badge "Vérifié" sur une boutique ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Il indique que la boutique a été contrôlée par l'équipe TradeHub. Une boutique non vérifiée n'est pas forcément un problème, mais mérite un peu plus de vigilance de ta part.</p>
+    </details>
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4">
+      <summary class="font-semibold text-navy cursor-pointer">Comment devenir vendeur sur TradeHub ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Les comptes boutique sont créés par l'équipe TradeHub après vérification, il n'y a pas d'auto-inscription. <a href="contact.html" class="text-primary hover:underline">Contacte-nous</a> pour en discuter.</p>
+    </details>
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4">
+      <summary class="font-semibold text-navy cursor-pointer">Puis-je suivre l'historique de mes commandes ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Oui : connecté à ton compte, rends-toi sur "Mes commandes" (accessible depuis "Mon compte") pour retrouver toutes tes commandes passées, avec le détail des articles et le total payé.</p>
+    </details>
+
+    <details class="bg-white border border-gray-200 rounded-lg p-4">
+      <summary class="font-semibold text-navy cursor-pointer">Comment modifier les informations de ma boutique ?</summary>
+      <p class="text-sm text-gray-600 mt-2">Depuis ton espace vendeur, l'onglet "Mes informations" te permet de modifier le nom de ta boutique, ton pays et tes coordonnées bancaires.</p>
+    </details>
+  </div>
+
+  <div class="mt-10 bg-white border border-gray-200 rounded-lg p-5">
+    <p class="text-sm text-gray-600">Tu ne trouves pas la réponse à ta question ? <a href="contact.html" class="text-primary hover:underline">Écris-nous</a>.</p>
+  </div>
+</main>
+
+<footer class="bg-navy text-gray-400 text-sm mt-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 text-center text-xs">
+    © 2026 TradeHub — Projet de démonstration à but pédagogique.
+  </div>
+</footer>
+
+<script src="js/page-nav.js"></script>
+</body>
+</html>

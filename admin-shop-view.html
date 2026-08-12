@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Détail boutique — Administration TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-navy text-white">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-xl">
+      Trade<span class="text-primary">Hub</span> <span class="text-gray-400 font-normal text-sm">/ Admin</span>
+    </a>
+    <a href="admin-dashboard.html" class="text-sm text-gray-300 hover:text-white">← Retour à la liste</a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-8" id="content">
+  <p class="text-gray-500">Chargement...</p>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/admin-auth.js"></script>
+<script>
+  requireAdminAuth();
+
+  const shopId = new URLSearchParams(window.location.search).get('id');
+
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  function maskedField(id, value, label) {
+    return `
+      <div>
+        <label class="text-sm text-gray-700 font-medium">${label}</label>
+        <div class="mt-1 flex gap-2">
+          <input id="${id}" type="password" readonly value="${value || ''}" placeholder="Non renseigné"
+            class="flex-1 border border-gray-200 bg-gray-50 rounded-md px-3 py-2.5 text-sm font-mono" />
+          ${value ? `<button type="button" data-toggle="${id}" class="toggle-btn px-3 border border-gray-300 rounded-md text-sm text-gray-500 hover:text-navy">👁</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  async function load() {
+    const content = document.getElementById('content');
+    try {
+      const shop = await adminApiFetch(`/shops/${shopId}`);
+      document.title = `${shop.shopName} — Administration TradeHub`;
+
+      content.innerHTML = `
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h1 class="font-display font-bold text-2xl text-navy">${shop.shopName}</h1>
+            <p class="text-sm text-gray-500 mt-1">Compte créé le ${formatDate(shop.createdAt)}</p>
+          </div>
+          <a href="admin-shop-form.html?id=${shop.id}" class="btn-primary px-5 py-2.5 rounded-md text-sm">Modifier</a>
+        </div>
+
+        <!-- ===== Informations générales ===== -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 space-y-4 mb-6">
+          <h2 class="font-display font-bold text-navy">Informations générales</h2>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <p class="text-xs text-gray-500">Email</p>
+              <p class="text-sm text-gray-800">${shop.email}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Pays</p>
+              <p class="text-sm text-gray-800">${shop.country || '—'}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Statut</p>
+              <p class="text-sm">${shop.verified
+                ? `<span class="badge-verified">✓ Vérifiée</span>`
+                : `<span class="text-gray-500">Non vérifiée</span>`}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Nombre de produits</p>
+              <p class="text-sm text-gray-800">${shop.products.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Coordonnées bancaires ===== -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 space-y-4 mb-6">
+          <div>
+            <h2 class="font-display font-bold text-navy">Coordonnées bancaires (RIB)</h2>
+            <p class="text-xs text-gray-500 mt-1">🔒 Déchiffrées uniquement pour cet affichage admin.</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">Titulaire du compte</p>
+            <p class="text-sm text-gray-800">${shop.bankAccountHolder || 'Non renseigné'}</p>
+          </div>
+          ${maskedField('field-iban', shop.iban, 'IBAN')}
+          ${maskedField('field-bic', shop.bic, 'BIC / SWIFT')}
+        </div>
+
+        <!-- ===== Produits ===== -->
+        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <h2 class="font-display font-bold text-navy p-6 pb-4">Produits (${shop.products.length})</h2>
+          <div class="divide-y divide-gray-100">
+            ${shop.products.length
+              ? shop.products.map((p) => `
+                <div class="flex items-center gap-4 px-6 py-3">
+                  <div class="w-12 h-12 rounded-md border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
+                    ${productImageHTML(p.image_url, p.name, 'w-full h-full object-cover')}
+                  </div>
+                  <p class="flex-1 text-sm text-gray-700">${p.name}</p>
+                  <p class="text-sm font-medium text-navy">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(p.price)}</p>
+                </div>
+              `).join('')
+              : `<p class="text-sm text-gray-500 px-6 pb-6">Cette boutique n'a pas encore de produit.</p>`}
+          </div>
+        </div>
+      `;
+
+      content.querySelectorAll('.toggle-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const field = document.getElementById(btn.dataset.toggle);
+          field.type = field.type === 'password' ? 'text' : 'password';
+        });
+      });
+    } catch (err) {
+      content.innerHTML = `<p class="text-red-500">${err.message}</p>`;
+    }
+  }
+
+  load();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

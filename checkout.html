@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Commande — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+    <p class="text-xs text-gray-500">🔒 Paiement sécurisé — Étape 2/2</p>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="font-display font-bold text-2xl text-navy mb-6">Finaliser la commande</h1>
+
+  <div id="checkout-content" class="grid md:grid-cols-3 gap-8">
+    <!-- injecté en JS -->
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/customer-auth.js"></script>
+<script>
+  async function render() {
+    const content = document.getElementById('checkout-content');
+
+    // Un compte client est désormais requis pour passer commande.
+    const session = getCustomerSession();
+    if (!session?.token) {
+      content.innerHTML = `
+        <div class="md:col-span-3 text-center py-20">
+          <p class="text-5xl mb-4">🔒</p>
+          <p class="text-gray-600 mb-2">Tu dois être connecté pour passer commande.</p>
+          <p class="text-sm text-gray-400 mb-6">Tes articles restent dans ton panier en attendant.</p>
+          <div class="flex gap-3 justify-center">
+            <a href="login-shop.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">Se connecter</a>
+            <a href="register-customer.html" class="btn-outline inline-block px-6 py-3 rounded-md text-sm">Créer un compte</a>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const cart = await getCart();
+
+    if (cart.length === 0) {
+      content.innerHTML = `
+        <div class="md:col-span-3 text-center py-20">
+          <p class="text-gray-600 mb-4">Ton panier est vide, impossible de passer commande.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const total = await getCartTotal();
+    const count = await getCartCount();
+
+    content.innerHTML = `
+      <form id="checkout-form" class="md:col-span-2 bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+        <h2 class="font-display font-bold text-navy mb-2">Informations de livraison</h2>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-md p-3 text-sm text-gray-600">
+          Commande au nom de <strong>${session.customer.name}</strong> (${session.customer.email})
+        </div>
+
+        <div>
+          <label class="text-sm text-gray-700 font-medium">Téléphone</label>
+          <input name="phone" type="tel" class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+        </div>
+        <div>
+          <label class="text-sm text-gray-700 font-medium">Adresse de livraison complète *</label>
+          <textarea required name="address" rows="3" placeholder="Rue, ville, code postal, pays"
+            class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
+        </div>
+
+        <p id="form-error" class="hidden text-sm text-red-600"></p>
+
+        <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm mt-2">
+          Confirmer la commande — ${formatPrice(total)}
+        </button>
+      </form>
+
+      <div class="bg-white border border-gray-200 rounded-lg p-5 h-fit">
+        <h2 class="font-display font-bold text-navy mb-4">Résumé (${count} unités)</h2>
+        <div class="space-y-3 max-h-72 overflow-y-auto pr-1">
+          ${cart.map(i => `
+            <div class="flex gap-3 text-sm">
+              <div class="w-12 h-12 rounded border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
+                ${productImageHTML(i.image, i.name, 'w-full h-full object-cover')}
+              </div>
+              <div class="flex-1">
+                <p class="text-gray-700 line-clamp-2">${i.name}</p>
+                <p class="text-xs text-gray-400">Qté : ${i.quantity}</p>
+              </div>
+              <p class="text-gray-700 font-medium">${formatPrice(i.price * i.quantity)}</p>
+            </div>
+          `).join('')}
+        </div>
+        <div class="border-t border-gray-200 mt-4 pt-4 flex justify-between font-display font-bold text-navy">
+          <span>Total</span>
+          <span>${formatPrice(total)}</span>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('checkout-form').addEventListener('submit', handleSubmit);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = document.getElementById('submit-btn');
+    const errorEl = document.getElementById('form-error');
+    errorEl.classList.add('hidden');
+
+    const cartItems = await getCart();
+    const items = cartItems.map(i => ({
+      productId: i.productId,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+    }));
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi en cours...';
+
+    try {
+      const session = getCustomerSession();
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify({
+          phone: form.phone.value.trim(),
+          address: form.address.value.trim(),
+          items,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+
+      await clearCart();
+      window.location.href = `confirmation.html?order=${data.orderId}`;
+    } catch (err) {
+      errorEl.textContent = err.message || "Une erreur est survenue, réessaie.";
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirmer la commande';
+    }
+  }
+
+  render();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

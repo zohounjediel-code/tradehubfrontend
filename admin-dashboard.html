@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administration — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-navy text-white">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-xl">
+      Trade<span class="text-primary">Hub</span> <span class="text-gray-400 font-normal text-sm">/ Admin</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="font-display font-bold text-2xl text-navy">Comptes boutique</h1>
+      <p id="shops-count" class="text-sm text-gray-500 mt-1"></p>
+    </div>
+    <a href="admin-shop-form.html" class="btn-primary px-5 py-2.5 rounded-md text-sm">+ Ajouter une boutique</a>
+  </div>
+
+  <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
+        <tr>
+          <th class="px-4 py-3">Boutique</th>
+          <th class="px-4 py-3">Pays</th>
+          <th class="px-4 py-3">Produits</th>
+          <th class="px-4 py-3">Vérifiée</th>
+          <th class="px-4 py-3">Créée le</th>
+          <th class="px-4 py-3 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="shops-tbody" class="divide-y divide-gray-100">
+        <!-- injecté en JS -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script src="js/admin-auth.js"></script>
+<script>
+  requireAdminAuth();
+
+  function formatDate(iso) {
+    return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function shopRow(shop) {
+    return `
+      <tr data-id="${shop.id}">
+        <td class="px-4 py-3">
+          <p class="font-medium text-navy">${shop.shop_name}</p>
+          <p class="text-xs text-gray-500">${shop.email}</p>
+        </td>
+        <td class="px-4 py-3 text-gray-600">${shop.country || '—'}</td>
+        <td class="px-4 py-3 text-gray-600">${shop.product_count}</td>
+        <td class="px-4 py-3">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="verified-toggle" ${shop.verified ? 'checked' : ''} />
+            <span class="text-xs text-gray-500">${shop.verified ? 'Vérifiée' : 'Non vérifiée'}</span>
+          </label>
+        </td>
+        <td class="px-4 py-3 text-gray-500 text-xs">${formatDate(shop.created_at)}</td>
+        <td class="px-4 py-3 text-right whitespace-nowrap">
+          <a href="admin-shop-view.html?id=${shop.id}" class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:border-navy hover:text-navy">Voir</a>
+          <a href="admin-shop-form.html?id=${shop.id}" class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:border-navy hover:text-navy ml-1">Modifier</a>
+          <button class="delete-btn text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50 ml-1">Supprimer</button>
+        </td>
+      </tr>
+    `;
+  }
+
+  async function loadShops() {
+    const tbody = document.getElementById('shops-tbody');
+    try {
+      const shops = await adminApiFetch('/shops');
+      document.getElementById('shops-count').textContent = `${shops.length} boutique${shops.length > 1 ? 's' : ''}`;
+
+      tbody.innerHTML = shops.length
+        ? shops.map(shopRow).join('')
+        : `<tr><td colspan="6" class="text-center text-gray-500 py-10">Aucune boutique pour le moment.</td></tr>`;
+
+      // Bascule rapide du statut "vérifiée"
+      tbody.querySelectorAll('.verified-toggle').forEach((checkbox) => {
+        checkbox.addEventListener('change', async (e) => {
+          const row = e.target.closest('tr');
+          const id = row.dataset.id;
+          const shop = shops.find((s) => String(s.id) === id);
+          try {
+            await adminApiFetch(`/shops/${id}`, {
+              method: 'PUT',
+              body: JSON.stringify({ shopName: shop.shop_name, country: shop.country, verified: e.target.checked }),
+            });
+            loadShops(); // re-render pour mettre à jour le libellé
+          } catch (err) {
+            alert(err.message);
+            e.target.checked = !e.target.checked; // annule visuellement en cas d'échec
+          }
+        });
+      });
+
+      // Suppression
+      tbody.querySelectorAll('.delete-btn').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          const row = e.target.closest('tr');
+          const id = row.dataset.id;
+          const shop = shops.find((s) => String(s.id) === id);
+          if (!confirm(`Supprimer la boutique "${shop.shop_name}" et tous ses produits (${shop.product_count}) ? Cette action est irréversible.`)) return;
+          try {
+            await adminApiFetch(`/shops/${id}`, { method: 'DELETE' });
+            loadShops();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500 py-10">${err.message}</td></tr>`;
+    }
+  }
+
+  loadShops();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mon panier — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="bg-navy text-gray-300 text-xs">
+  <div class="max-w-7xl mx-auto px-4 py-1.5 flex justify-between items-center">
+    <p>🌍 Livraison dans plus de 190 pays</p>
+    <div class="flex gap-4"><span>FR / EUR</span></div>
+  </div>
+</div>
+
+<header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-6">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy shrink-0">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+    <div class="flex-1"></div>
+    <a href="cart.html" class="relative flex items-center gap-2 text-primary shrink-0">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+      <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-primary text-white text-[11px] font-bold rounded-full w-5 h-5 flex items-center justify-center">0</span>
+      <span class="hidden sm:inline text-sm font-medium">Panier</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="font-display font-bold text-2xl text-navy mb-6">Mon panier</h1>
+
+  <div id="cart-content" class="grid md:grid-cols-3 gap-8">
+    <!-- injecté en JS -->
+  </div>
+</main>
+
+<footer class="bg-navy text-gray-400 text-sm mt-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 text-center text-xs">
+    © 2026 TradeHub — Projet de démonstration à but pédagogique.
+  </div>
+</footer>
+
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/customer-auth.js"></script>
+<script src="js/customer-auth.js"></script>
+<script>
+  function cartItemRow(item) {
+    return `
+      <div class="flex gap-4 py-4 border-b border-gray-200" data-id="${item.productId}">
+        <div class="w-20 h-20 rounded-md border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
+          ${productImageHTML(item.image, item.name, 'w-full h-full object-cover')}
+        </div>
+        <div class="flex-1">
+          <a href="product.html?slug=${item.slug}" class="text-sm font-medium text-navy hover:text-primary">${item.name}</a>
+          <p class="text-xs text-gray-500 mt-1">${formatPrice(item.price)} / unité · MOQ ${item.moq}</p>
+          <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center border border-gray-300 rounded-md">
+              <button class="qty-minus px-2.5 py-1 text-gray-600 hover:bg-gray-100">−</button>
+              <input type="number" class="qty-input w-14 text-center border-x border-gray-300 py-1 text-sm focus:outline-none"
+                value="${item.quantity}" min="${item.moq}" step="${item.moq}" />
+              <button class="qty-plus px-2.5 py-1 text-gray-600 hover:bg-gray-100">+</button>
+            </div>
+            <button class="remove-btn text-xs text-gray-400 hover:text-red-500">Supprimer</button>
+          </div>
+        </div>
+        <p class="font-display font-bold text-navy line-total">${formatPrice(item.price * item.quantity)}</p>
+      </div>
+    `;
+  }
+
+  async function renderCart() {
+    const cart = await getCart();
+    const content = document.getElementById('cart-content');
+
+    if (cart.length === 0) {
+      content.innerHTML = `
+        <div class="md:col-span-3 text-center py-20">
+          <p class="text-5xl mb-4">🛒</p>
+          <p class="text-gray-600 mb-4">Ton panier est vide pour le moment.</p>
+          <a href="index.html" class="btn-primary inline-block px-6 py-3 rounded-md text-sm">Explorer le catalogue</a>
+        </div>
+      `;
+      return;
+    }
+
+    const total = await getCartTotal();
+    const count = await getCartCount();
+
+    content.innerHTML = `
+      <div class="md:col-span-2 bg-white border border-gray-200 rounded-lg p-5" id="cart-items">
+        ${cart.map(cartItemRow).join('')}
+      </div>
+      <div class="bg-white border border-gray-200 rounded-lg p-5 h-fit sticky top-24">
+        <h2 class="font-display font-bold text-navy mb-4">Résumé de la commande</h2>
+        <div class="flex justify-between text-sm text-gray-600 mb-2">
+          <span>Sous-total (${count} unités)</span>
+          <span id="summary-total">${formatPrice(total)}</span>
+        </div>
+        <p class="text-xs text-gray-400 mb-4">Frais de port calculés à l'étape suivante.</p>
+        <a href="checkout.html" class="btn-primary w-full py-3 rounded-md text-sm block text-center">Passer la commande</a>
+      </div>
+    `;
+
+    attachCartEvents();
+  }
+
+  function attachCartEvents() {
+    document.querySelectorAll('#cart-items > div[data-id]').forEach((row) => {
+      const productId = Number(row.dataset.id);
+      const qtyInput = row.querySelector('.qty-input');
+      const moq = Number(qtyInput.min);
+
+      const applyChange = async (newQty) => {
+        newQty = Math.max(moq, newQty);
+        await updateCartItemQuantity(productId, newQty);
+        await renderCart(); // re-render complet : garde tous les totaux parfaitement synchronisés
+      };
+
+      row.querySelector('.qty-minus').addEventListener('click', () => applyChange(Number(qtyInput.value) - moq));
+      row.querySelector('.qty-plus').addEventListener('click', () => applyChange(Number(qtyInput.value) + moq));
+      qtyInput.addEventListener('change', () => applyChange(Number(qtyInput.value)));
+
+      row.querySelector('.remove-btn').addEventListener('click', async () => {
+        await removeFromCart(productId);
+        await renderCart();
+      });
+    });
+  }
+
+  renderCart();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paiement de la commande — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-3xl mx-auto px-4 py-3">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-12">
+  <div id="confirmation-content">
+    <!-- injecté en JS -->
+  </div>
+</main>
+
+<script src="js/customer-auth.js"></script>
+<script>
+  const orderId = new URLSearchParams(window.location.search).get('order');
+  const content = document.getElementById('confirmation-content');
+  const money = (n) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(n);
+
+  async function fetchOrder() {
+    const session = getCustomerSession();
+    const res = await fetch(`/api/orders/${orderId}`, {
+      headers: session?.token ? { Authorization: `Bearer ${session.token}` } : {},
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Impossible de récupérer cette commande.');
+    return data;
+  }
+
+  function orderItemsHTML(order) {
+    return `
+      <div class="border-t border-gray-200 pt-3 space-y-2">
+        ${order.items.map((it) => `
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-700">${it.product_name} × ${it.quantity}</span>
+            <span class="text-gray-600">${money(it.unit_price * it.quantity)}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="border-t border-gray-200 mt-3 pt-3 flex justify-between font-display font-bold text-navy">
+        <span>Total</span>
+        <span>${money(order.total)}</span>
+      </div>
+    `;
+  }
+
+  function copyableField(label, value) {
+    const id = `copy-${label}-${Math.random().toString(36).slice(2, 8)}`;
+    return `
+      <div class="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500">${label}</p>
+          <p id="${id}" class="text-sm font-mono text-navy truncate">${value}</p>
+        </div>
+        <button type="button" class="copy-btn text-xs px-2 py-1 border border-gray-300 rounded-md text-gray-500 hover:text-navy shrink-0" data-target="${id}">Copier</button>
+      </div>
+    `;
+  }
+
+  function shopPaymentCardHTML(shop) {
+    return `
+      <div class="bg-white border border-gray-200 rounded-lg p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <p class="font-semibold text-navy">${shop.shopName}</p>
+          <p class="font-display font-bold text-primary">${money(shop.subtotal)}</p>
+        </div>
+        ${shop.iban ? `
+          <div class="space-y-2">
+            ${copyableField('Titulaire du compte', shop.bankAccountHolder || shop.shopName)}
+            ${copyableField('IBAN', shop.iban)}
+            ${shop.bic ? copyableField('BIC / SWIFT', shop.bic) : ''}
+          </div>
+        ` : `
+          <p class="text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-md p-3">
+            Cette boutique n'a pas encore renseigné de RIB. Contacte le <a href="contact.html" class="underline">support</a> pour connaître la marche à suivre.
+          </p>
+        `}
+      </div>
+    `;
+  }
+
+  function wireCopyButtons() {
+    content.querySelectorAll('.copy-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = document.getElementById(btn.dataset.target).textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          const original = btn.textContent;
+          btn.textContent = 'Copié ✓';
+          setTimeout(() => (btn.textContent = original), 1500);
+        } catch {
+          alert('Impossible de copier automatiquement, sélectionne le texte manuellement.');
+        }
+      });
+    });
+  }
+
+  function renderPendingPayment(order) {
+    const totalShopSubtotals = order.shops.reduce((sum, s) => sum + s.subtotal, 0);
+    content.innerHTML = `
+      <div class="text-center mb-8">
+        <div class="text-5xl mb-4">📦</div>
+        <h1 class="font-display font-bold text-2xl text-navy mb-2">Commande enregistrée, ${order.customer_name.split(' ')[0]} !</h1>
+        <p class="text-gray-600">Il ne reste plus qu'à régler pour qu'elle soit préparée.</p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+        <p class="text-sm text-gray-500 mb-3">Livraison à :</p>
+        <p class="text-sm text-gray-800 mb-4">${order.shipping_address}</p>
+        ${orderItemsHTML(order)}
+      </div>
+
+      <h2 class="font-display font-bold text-navy mb-1">💳 Effectue le paiement</h2>
+      <p class="text-sm text-gray-500 mb-4">
+        ${order.shops.length > 1
+          ? `Cette commande concerne ${order.shops.length} boutiques différentes : un paiement est nécessaire pour chacune.`
+          : `Utilise les coordonnées ci-dessous pour effectuer le paiement (${money(totalShopSubtotals)}). Dernière étape pour finaliser ta commande.`}
+      </p>
+      <div class="space-y-4 mb-8">
+        ${order.shops.map(shopPaymentCardHTML).join('') || '<p class="text-sm text-gray-500">Aucune boutique identifiée pour cette commande.</p>'}
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="font-display font-bold text-navy mb-1">📎 Envoyer ma preuve de paiement</h2>
+        <p class="text-sm text-gray-500 mb-4">Capture d'écran du paiement, reçu bancaire... (image ou PDF, 8 Mo max)</p>
+
+        <form id="proof-form" class="space-y-4">
+          <input id="proof-input" name="proof" type="file" accept="image/png, image/jpeg, image/webp, application/pdf" required
+            class="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-primary file:text-white file:text-sm hover:file:bg-primary-dark" />
+          <p id="proof-error" class="hidden text-sm text-red-600"></p>
+          <button type="submit" id="proof-submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+            J'ai déjà payé
+          </button>
+        </form>
+      </div>
+    `;
+
+    wireCopyButtons();
+
+    document.getElementById('proof-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('proof-submit-btn');
+      const errorEl = document.getElementById('proof-error');
+      errorEl.classList.add('hidden');
+
+      const file = document.getElementById('proof-input').files[0];
+      if (!file) {
+        errorEl.textContent = 'Sélectionne un fichier avant de continuer.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi en cours...';
+
+      try {
+        const session = getCustomerSession();
+        const formData = new FormData();
+        formData.append('proof', file);
+
+        const res = await fetch(`/api/orders/${orderId}/payment-proof`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.token}` },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+
+        await load(); // recharge la page dans son état "en attente de vérification"
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = "J'ai déjà payé";
+      }
+    });
+  }
+
+  function renderReportedPayment(order) {
+    content.innerHTML = `
+      <div class="text-center">
+        <div class="text-5xl mb-4">⏳</div>
+        <h1 class="font-display font-bold text-2xl text-navy mb-2">Paiement effectué, merci !</h1>
+
+        <div class="bg-amber-50 border border-amber-100 rounded-lg p-4 text-sm text-amber-800 max-w-md mx-auto mb-6">
+          La boutique va vérifier la réception du paiement avant de préparer ta commande. Ce n'est pas automatique — un peu de patience !
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-6 text-left max-w-md mx-auto">
+          <p class="text-sm text-gray-500 mb-3">Livraison à :</p>
+          <p class="text-sm text-gray-800 mb-4">${order.shipping_address}</p>
+          ${orderItemsHTML(order)}
+        </div>
+      </div>
+    `;
+  }
+
+  async function load() {
+    if (!orderId) {
+      content.innerHTML = `<p class="text-gray-500 text-center">Aucune commande à afficher.</p>`;
+      return;
+    }
+    try {
+      const order = await fetchOrder();
+      if (order.payment_status === 'reported') {
+        renderReportedPayment(order);
+      } else {
+        renderPendingPayment(order);
+      }
+    } catch (err) {
+      content.innerHTML = `<p class="text-gray-500 text-center">${err.message}</p>`;
+    }
+  }
+
+  load();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

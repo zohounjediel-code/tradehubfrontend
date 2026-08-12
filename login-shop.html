@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Connexion boutique — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-[color:var(--color-bg)]">
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-md mx-auto px-4 py-3">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 py-10">
+  <h1 class="font-display font-bold text-2xl text-navy mb-1">Connexion</h1>
+  <p class="text-sm text-gray-500 mb-6">Connecte-toi à ton compte client, boutique ou administrateur.</p>
+
+  <form id="login-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Email</label>
+      <input required name="email" type="email"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Mot de passe</label>
+      <input required name="password" type="password"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+
+    <p id="form-error" class="hidden text-sm text-red-600"></p>
+
+    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+      Se connecter
+    </button>
+
+    <p class="text-xs text-center text-gray-500">
+      Pas encore de compte ? <a href="register-customer.html" class="text-primary hover:underline">Créer un compte</a>
+    </p>
+  </form>
+</main>
+
+<script src="js/cart.js"></script>
+<script src="js/shop-auth.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/customer-auth.js"></script>
+<script>
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = document.getElementById('submit-btn');
+    const errorEl = document.getElementById('form-error');
+    errorEl.classList.add('hidden');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    const email = form.email.value.trim();
+    const password = form.password.value;
+
+    try {
+      // 1. On tente d'abord une connexion "boutique"...
+      const shopRes = await fetch('/api/shops/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const shopData = await shopRes.json();
+
+      if (shopRes.ok) {
+        setShopSession(shopData.token, shopData.shop);
+        window.location.href = 'shop-dashboard.html';
+        return;
+      }
+
+      // 2. ...sinon une connexion "admin"...
+      const adminRes = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const adminData = await adminRes.json();
+
+      if (adminRes.ok) {
+        setAdminSession(adminData.token, adminData.admin);
+        window.location.href = 'admin-dashboard.html';
+        return;
+      }
+
+      // 3. ...sinon une connexion "client"
+      const customerRes = await fetch('/api/customers/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const customerData = await customerRes.json();
+
+      if (customerRes.ok) {
+        setCustomerSession(customerData.token, customerData.customer);
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Aucun des trois n'a fonctionné
+      throw new Error('Email ou mot de passe incorrect.');
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  });
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

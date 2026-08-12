@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ajouter un produit — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+    <a href="shop-dashboard.html" class="text-sm text-gray-500 hover:text-primary">← Mon espace vendeur</a>
+  </div>
+</header>
+
+<main class="max-w-2xl mx-auto px-4 py-8">
+  <h1 id="page-title" class="font-display font-bold text-2xl text-navy mb-6">Ajouter un produit</h1>
+
+  <form id="product-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Nom du produit *</label>
+      <input required name="name" type="text" placeholder="Ex. Écouteurs sans fil Bluetooth"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Description</label>
+      <textarea name="description" rows="3" placeholder="Décris ton produit, ses caractéristiques, ses matériaux..."
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm text-gray-700 font-medium">Prix unitaire (€) *</label>
+        <input required name="price" type="number" step="0.01" min="0.01"
+          class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-700 font-medium">Commande minimum (MOQ)</label>
+        <input name="moq" type="number" min="1" placeholder="1"
+          class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+    </div>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Catégorie *</label>
+      <select required name="categoryId"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/40">
+        <option value="">Choisir une catégorie...</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Photo du produit</label>
+      <div class="mt-1 flex items-center gap-4">
+        <img id="image-preview" src="" alt="Aperçu" class="hidden w-20 h-20 rounded-md object-cover border border-gray-200 shrink-0" />
+        <label class="flex-1 cursor-pointer border border-dashed border-gray-300 rounded-md px-4 py-6 text-center text-sm text-gray-500 hover:border-primary hover:text-primary transition-colors">
+          <input id="image-input" name="image" type="file" accept="image/png, image/jpeg, image/webp, image/gif" class="hidden" />
+          <span id="image-input-label">📷 Cliquer pour choisir une image</span>
+        </label>
+      </div>
+      <p class="text-xs text-gray-400 mt-1">JPG, PNG, WebP ou GIF, 5 Mo max. Optionnel : sinon, une photo correspondant au nom du produit sera recherchée automatiquement.</p>
+    </div>
+
+    <p id="form-error" class="hidden text-sm text-red-600"></p>
+
+    <div class="flex gap-3 pt-2">
+      <button type="submit" id="submit-btn" class="btn-primary flex-1 py-3 rounded-md text-sm">
+        Enregistrer le produit
+      </button>
+      <a href="shop-dashboard.html" class="btn-outline flex-1 py-3 rounded-md text-sm text-center">Annuler</a>
+    </div>
+  </form>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/shop-auth.js"></script>
+<script>
+  requireShopAuth();
+
+  const productId = new URLSearchParams(window.location.search).get('id');
+  const isEditMode = !!productId;
+  const form = document.getElementById('product-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorEl = document.getElementById('form-error');
+  const imageInput = document.getElementById('image-input');
+  const imagePreview = document.getElementById('image-preview');
+  const imageInputLabel = document.getElementById('image-input-label');
+
+  // Aperçu immédiat de l'image choisie, avant même l'envoi au serveur
+  imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+    imageInputLabel.textContent = `📷 ${file.name}`;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imagePreview.src = e.target.result;
+      imagePreview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  if (isEditMode) {
+    document.getElementById('page-title').textContent = 'Modifier le produit';
+    document.title = 'Modifier le produit — TradeHub';
+  }
+
+  async function loadCategories(selectedId) {
+    const categories = await api.getCategories();
+    const select = form.categoryId;
+    categories.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.icon} ${c.name}`;
+      if (selectedId && Number(selectedId) === c.id) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  async function loadExistingProduct() {
+    if (!isEditMode) {
+      await loadCategories();
+      return;
+    }
+    // On récupère le produit dans la liste de mes produits (simple et suffisant ici)
+    const products = await shopApiFetch('/me/products');
+    const product = products.find((p) => String(p.id) === productId);
+
+    if (!product) {
+      errorEl.textContent = "Produit introuvable ou tu n'en es pas le propriétaire.";
+      errorEl.classList.remove('hidden');
+      form.querySelectorAll('input, textarea, select, button').forEach((el) => (el.disabled = true));
+      return;
+    }
+
+    await loadCategories(product.category_id);
+    form.name.value = product.name;
+    form.description.value = product.description || '';
+    form.price.value = product.price;
+    form.moq.value = product.moq;
+
+    if (product.image_url) {
+      imagePreview.src = product.image_url;
+      imagePreview.classList.remove('hidden');
+      imageInputLabel.textContent = "📷 Changer l'image (optionnel)";
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enregistrement...';
+
+    const formData = new FormData();
+    formData.append('name', form.name.value.trim());
+    formData.append('description', form.description.value.trim());
+    formData.append('price', form.price.value);
+    formData.append('moq', form.moq.value || '1');
+    formData.append('categoryId', form.categoryId.value);
+    if (imageInput.files[0]) {
+      formData.append('image', imageInput.files[0]);
+    }
+
+    try {
+      if (isEditMode) {
+        await shopApiFetch(`/me/products/${productId}`, { method: 'PUT', body: formData });
+      } else {
+        await shopApiFetch('/me/products', { method: 'POST', body: formData });
+      }
+      window.location.href = 'shop-dashboard.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enregistrer le produit';
+    }
+  });
+
+  loadExistingProduct();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

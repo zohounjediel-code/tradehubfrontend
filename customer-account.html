@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mon compte — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 py-10 space-y-6">
+  <h1 class="font-display font-bold text-2xl text-navy">Mon compte</h1>
+
+  <!-- ===== Informations personnelles ===== -->
+  <form id="profile-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <h2 class="font-display font-bold text-navy text-sm">Informations personnelles</h2>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Email</label>
+      <input id="field-email" type="email" disabled
+        class="mt-1 w-full border border-gray-200 bg-gray-50 rounded-md px-3 py-2.5 text-sm text-gray-500" />
+      <p class="text-xs text-gray-400 mt-1">L'email de connexion ne peut pas être modifié ici.</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="text-sm text-gray-700 font-medium">Prénom *</label>
+        <input required name="firstName" type="text"
+          class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+      <div>
+        <label class="text-sm text-gray-700 font-medium">Nom *</label>
+        <input required name="lastName" type="text"
+          class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+      </div>
+    </div>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Téléphone</label>
+      <input name="phone" type="tel"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+
+    <p id="profile-error" class="hidden text-sm text-red-600"></p>
+    <p id="profile-success" class="hidden text-sm text-green-600">✓ Informations enregistrées</p>
+
+    <button type="submit" id="profile-submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+      Enregistrer
+    </button>
+  </form>
+
+  <!-- ===== Mot de passe ===== -->
+  <form id="password-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <h2 class="font-display font-bold text-navy text-sm">Modifier le mot de passe</h2>
+
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Mot de passe actuel *</label>
+      <input required name="currentPassword" type="password"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Nouveau mot de passe *</label>
+      <input required name="newPassword" type="password" minlength="6" placeholder="6 caractères minimum"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Confirmer le nouveau mot de passe *</label>
+      <input required name="confirmPassword" type="password"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+
+    <p id="password-error" class="hidden text-sm text-red-600"></p>
+    <p id="password-success" class="hidden text-sm text-green-600">✓ Mot de passe mis à jour</p>
+
+    <button type="submit" id="password-submit-btn" class="btn-outline w-full py-3 rounded-md text-sm">
+      Changer le mot de passe
+    </button>
+  </form>
+</main>
+
+<script src="js/customer-auth.js"></script>
+<script>
+  requireCustomerAuth();
+
+  const profileForm = document.getElementById('profile-form');
+  const profileSubmitBtn = document.getElementById('profile-submit-btn');
+  const profileErrorEl = document.getElementById('profile-error');
+  const profileSuccessEl = document.getElementById('profile-success');
+
+  const passwordForm = document.getElementById('password-form');
+  const passwordSubmitBtn = document.getElementById('password-submit-btn');
+  const passwordErrorEl = document.getElementById('password-error');
+  const passwordSuccessEl = document.getElementById('password-success');
+
+  async function loadProfile() {
+    try {
+      const me = await customerApiFetch('/me');
+      document.getElementById('field-email').value = me.email;
+      profileForm.firstName.value = me.firstName;
+      profileForm.lastName.value = me.lastName;
+      profileForm.phone.value = me.phone;
+    } catch (err) {
+      profileErrorEl.textContent = err.message;
+      profileErrorEl.classList.remove('hidden');
+    }
+  }
+
+  profileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    profileErrorEl.classList.add('hidden');
+    profileSuccessEl.classList.add('hidden');
+    profileSubmitBtn.disabled = true;
+    profileSubmitBtn.textContent = 'Enregistrement...';
+
+    try {
+      const result = await customerApiFetch('/me', {
+        method: 'PUT',
+        body: JSON.stringify({
+          firstName: profileForm.firstName.value.trim(),
+          lastName: profileForm.lastName.value.trim(),
+          phone: profileForm.phone.value.trim(),
+        }),
+      });
+      setCustomerSession(result.token, result.customer);
+      profileSuccessEl.classList.remove('hidden');
+    } catch (err) {
+      profileErrorEl.textContent = err.message;
+      profileErrorEl.classList.remove('hidden');
+    } finally {
+      profileSubmitBtn.disabled = false;
+      profileSubmitBtn.textContent = 'Enregistrer';
+    }
+  });
+
+  passwordForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    passwordErrorEl.classList.add('hidden');
+    passwordSuccessEl.classList.add('hidden');
+
+    if (passwordForm.newPassword.value !== passwordForm.confirmPassword.value) {
+      passwordErrorEl.textContent = 'La confirmation ne correspond pas au nouveau mot de passe.';
+      passwordErrorEl.classList.remove('hidden');
+      return;
+    }
+
+    passwordSubmitBtn.disabled = true;
+    passwordSubmitBtn.textContent = 'Modification...';
+
+    try {
+      await customerApiFetch('/me/password', {
+        method: 'PUT',
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword.value,
+          newPassword: passwordForm.newPassword.value,
+        }),
+      });
+      passwordSuccessEl.classList.remove('hidden');
+      passwordForm.reset();
+    } catch (err) {
+      passwordErrorEl.textContent = err.message;
+      passwordErrorEl.classList.remove('hidden');
+    } finally {
+      passwordSubmitBtn.disabled = false;
+      passwordSubmitBtn.textContent = 'Changer le mot de passe';
+    }
+  });
+
+  loadProfile();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

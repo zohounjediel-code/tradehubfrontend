@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Comment commander — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-10">
+  <h1 class="font-display font-bold text-2xl text-navy mb-2">Comment commander sur TradeHub</h1>
+  <p class="text-sm text-gray-500 mb-8">Le parcours d'achat en quatre étapes, de la recherche à la réception.</p>
+
+  <ol class="space-y-6">
+    <li class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-display font-bold text-sm shrink-0">1</div>
+      <div>
+        <h2 class="font-semibold text-navy mb-1">Trouve ton produit</h2>
+        <p class="text-sm text-gray-600">Utilise la barre de recherche ou parcours les catégories depuis l'accueil. Chaque fiche produit affiche le prix unitaire, la commande minimum (MOQ) et les infos du fournisseur.</p>
+      </div>
+    </li>
+    <li class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-display font-bold text-sm shrink-0">2</div>
+      <div>
+        <h2 class="font-semibold text-navy mb-1">Ajoute au panier</h2>
+        <p class="text-sm text-gray-600">Choisis ta quantité (par multiples du MOQ) et ajoute le produit au panier. Connecté à un compte, ton panier est sauvegardé automatiquement ; sinon, il reste dans ton navigateur.</p>
+      </div>
+    </li>
+    <li class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-display font-bold text-sm shrink-0">3</div>
+      <div>
+        <h2 class="font-semibold text-navy mb-1">Connecte-toi et passe la commande</h2>
+        <p class="text-sm text-gray-600">Depuis ton panier, clique sur "Passer la commande". Un compte client est requis à cette étape (connexion ou création rapide) ; renseigne ensuite ton adresse de livraison et confirme.</p>
+      </div>
+    </li>
+    <li class="flex gap-4">
+      <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-display font-bold text-sm shrink-0">4</div>
+      <div>
+        <h2 class="font-semibold text-navy mb-1">Reçois ta confirmation</h2>
+        <p class="text-sm text-gray-600">Un récapitulatif de commande s'affiche immédiatement, avec le détail des articles et le total payé.</p>
+      </div>
+    </li>
+  </ol>
+
+  <div class="mt-10 bg-white border border-gray-200 rounded-lg p-5">
+    <p class="text-sm text-gray-600">Une question sur une commande en cours ? Consulte le <a href="help-center.html" class="text-primary hover:underline">centre d'aide</a> ou <a href="contact.html" class="text-primary hover:underline">contacte-nous</a>.</p>
+  </div>
+</main>
+
+<footer class="bg-navy text-gray-400 text-sm mt-12">
+  <div class="max-w-7xl mx-auto px-4 py-8 text-center text-xs">
+    © 2026 TradeHub — Projet de démonstration à but pédagogique.
+  </div>
+</footer>
+
+<script src="js/page-nav.js"></script>
+</body>
+</html>

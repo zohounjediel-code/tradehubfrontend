@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mon espace vendeur — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="font-display font-bold text-2xl text-navy">Mes produits</h1>
+      <p id="verified-status" class="text-sm text-gray-500 mt-1"></p>
+    </div>
+    <a href="shop-product-form.html" class="btn-primary px-5 py-2.5 rounded-md text-sm">+ Ajouter un produit</a>
+  </div>
+
+  <div id="products-list" class="bg-white border border-gray-200 rounded-lg divide-y divide-gray-100">
+    <!-- injecté en JS -->
+  </div>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/shop-auth.js"></script>
+<script>
+  requireShopAuth(); // redirige vers login-shop.html si pas connecté
+
+  function productRow(p) {
+    return `
+      <div class="flex items-center gap-4 p-4" data-id="${p.id}">
+        <div class="w-14 h-14 rounded-md border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
+          ${productImageHTML(p.image_url, p.name, 'w-full h-full object-cover')}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-navy truncate">${p.name}</p>
+          <p class="text-xs text-gray-500">${p.category_name || 'Sans catégorie'} · MOQ ${p.moq}</p>
+        </div>
+        <p class="font-display font-bold text-primary shrink-0">${formatPrice(p.price)}</p>
+        <div class="flex gap-2 shrink-0">
+          <a href="shop-product-form.html?id=${p.id}" class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:border-navy hover:text-navy">Modifier</a>
+          <button class="delete-btn text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50">Supprimer</button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function loadProducts() {
+    const list = document.getElementById('products-list');
+    try {
+      const [products, me] = await Promise.all([
+        shopApiFetch('/me/products'),
+        shopApiFetch('/me'),
+      ]);
+
+      document.getElementById('verified-status').innerHTML = me.verified
+        ? `<span class="badge-verified">✓ Boutique vérifiée</span>`
+        : `<span class="text-xs text-gray-400">Boutique non vérifiée — contacte le support pour être vérifié</span>`;
+
+      list.innerHTML = products.length
+        ? products.map(productRow).join('')
+        : `<p class="text-center text-gray-500 py-12">Tu n'as pas encore de produit. Clique sur "Ajouter un produit" pour commencer !</p>`;
+
+      list.querySelectorAll('.delete-btn').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          const row = e.target.closest('[data-id]');
+          const id = row.dataset.id;
+          if (!confirm('Supprimer ce produit ? Cette action est irréversible.')) return;
+          try {
+            await shopApiFetch(`/me/products/${id}`, { method: 'DELETE' });
+            row.remove();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    } catch (err) {
+      list.innerHTML = `<p class="text-center text-red-500 py-12">${err.message}</p>`;
+    }
+  }
+
+  loadProducts();
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>

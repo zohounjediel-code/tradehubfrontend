@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact — TradeHub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { primary: '#e8590c', 'primary-dark': '#c2410c', navy: '#0f1b2d' } } }
+  }
+</script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-[color:var(--color-bg)]">
+
+<header class="bg-white border-b border-gray-200">
+  <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="index.html" class="font-display font-extrabold text-2xl text-navy">
+      Trade<span class="text-primary">Hub</span>
+    </a>
+    <a href="index.html" class="text-sm text-gray-500 hover:text-primary">← Retour</a>
+  </div>
+</header>
+
+<main class="max-w-md mx-auto px-4 py-10">
+  <h1 class="font-display font-bold text-2xl text-navy mb-1">Contacte-nous</h1>
+  <p class="text-sm text-gray-500 mb-6">On te répond dès que possible.</p>
+
+  <form id="contact-form" class="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Nom complet *</label>
+      <input required name="name" type="text"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Email *</label>
+      <input required name="email" type="email"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40" />
+    </div>
+    <div>
+      <label class="text-sm text-gray-700 font-medium">Message *</label>
+      <textarea required name="message" rows="5" placeholder="Comment pouvons-nous t'aider ?"
+        class="mt-1 w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
+    </div>
+
+    <p id="form-error" class="hidden text-sm text-red-600"></p>
+
+    <button type="submit" id="submit-btn" class="btn-primary w-full py-3 rounded-md text-sm">
+      Envoyer le message
+    </button>
+  </form>
+
+  <div id="success-message" class="hidden bg-white border border-gray-200 rounded-lg p-8 text-center">
+    <p class="text-5xl mb-4">✅</p>
+    <p class="font-display font-bold text-navy mb-1">Message envoyé !</p>
+    <p class="text-sm text-gray-500">Merci, on revient vers toi bientôt.</p>
+  </div>
+</main>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorEl = document.getElementById('form-error');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Envoi...';
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.value.trim(),
+          email: form.email.value.trim(),
+          message: form.message.value.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Une erreur est survenue.');
+
+      form.classList.add('hidden');
+      document.getElementById('success-message').classList.remove('hidden');
+    } catch (err) {
+      errorEl.textContent = err.message;
+      errorEl.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Envoyer le message';
+    }
+  });
+</script>
+<script src="js/page-nav.js"></script>
+</body>
+</html>
