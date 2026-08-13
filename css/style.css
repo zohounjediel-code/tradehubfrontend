@@ -42,8 +42,22 @@ body {
   flex-direction: column;
 }
 
+/* <main> a presque toujours ses propres "max-w-* mx-auto" pour centrer
+   son contenu. Sur un conteneur flex (body), des marges horizontales
+   auto désactivent l'étirement automatique (align-items: stretch) et
+   redimensionnent l'élément à la largeur de son contenu au lieu de la
+   largeur de l'écran -- d'où un débordement horizontal dès qu'un enfant
+   (ex. tableau) est large. width: 100% force <main> à occuper toute la
+   largeur disponible ; max-w-*/mx-auto continuent de centrer son
+   contenu normalement. */
 body > main {
   flex: 1 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+body > * {
+  min-width: 0;
 }
 
 /* ---------- Boutons ---------- */

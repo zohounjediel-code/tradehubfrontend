@@ -94,7 +94,7 @@ function getInjectionTarget(row) {
   if (row.children.length > 1) {
     const lastChild = row.lastElementChild;
     const wrapper = document.createElement('div');
-    wrapper.className = 'flex items-center gap-3 shrink-0';
+    wrapper.className = 'flex items-center gap-3 shrink-0 ml-auto';
     row.insertBefore(wrapper, lastChild);
     wrapper.appendChild(lastChild);
     return wrapper;
@@ -122,10 +122,17 @@ function pageNavLogoutButtonHTML() {
 }
 
 function pageNavDropdownHTML(active) {
-  // Personne connecté : Retour, puis les liens généraux du site.
+  // Personne connecté : Retour, connexion/inscription (repliées ici sur
+  // mobile, où le bouton "Se connecter" de l'en-tête est masqué), puis les
+  // liens généraux du site.
   if (!active) {
     return `
       ${pageNavBackButtonHTML()}
+      <div class="border-t border-gray-100 my-1 sm:hidden"></div>
+      <div class="sm:hidden">
+        ${pageNavLinkHTML({ href: 'login-shop.html', label: pageNavT('nav.login', 'Se connecter') })}
+        ${pageNavLinkHTML({ href: 'register-customer.html', label: pageNavT('nav.createAccount', 'Créer un compte') })}
+      </div>
       <div class="border-t border-gray-100 my-1"></div>
       ${getPageNavLinks().map(pageNavLinkHTML).join('')}
     `;

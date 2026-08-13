@@ -25,8 +25,8 @@
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
+<main class="w-full max-w-6xl mx-auto px-4 py-8">
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
     <div>
       <h1 class="font-display font-bold text-2xl text-navy">Comptes boutique</h1>
       <p id="shops-count" class="text-sm text-gray-500 mt-1"></p>
@@ -35,21 +35,23 @@
   </div>
 
   <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
-        <tr>
-          <th class="px-4 py-3">Boutique</th>
-          <th class="px-4 py-3">Pays</th>
-          <th class="px-4 py-3">Produits</th>
-          <th class="px-4 py-3">Vérifiée</th>
-          <th class="px-4 py-3">Créée le</th>
-          <th class="px-4 py-3 text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="shops-tbody" class="divide-y divide-gray-100">
-        <!-- injecté en JS -->
-      </tbody>
-    </table>
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[640px] text-sm">
+        <thead class="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
+          <tr>
+            <th class="px-4 py-3">Boutique</th>
+            <th class="px-4 py-3">Pays</th>
+            <th class="px-4 py-3">Produits</th>
+            <th class="px-4 py-3">Vérifiée</th>
+            <th class="px-4 py-3">Créée le</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="shops-tbody" class="divide-y divide-gray-100">
+          <!-- injecté en JS -->
+        </tbody>
+      </table>
+    </div>
   </div>
 </main>
 

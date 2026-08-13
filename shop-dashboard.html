@@ -25,7 +25,7 @@
   </div>
 </header>
 
-<main class="max-w-5xl mx-auto px-4 py-8">
+<main class="w-full max-w-5xl mx-auto px-4 py-8">
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="font-display font-bold text-2xl text-navy">Mes produits</h1>
@@ -47,7 +47,7 @@
 
   function productRow(p) {
     return `
-      <div class="flex items-center gap-4 p-4" data-id="${p.id}">
+      <div class="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4 p-4" data-id="${p.id}">
         <div class="w-14 h-14 rounded-md border border-gray-200 bg-gray-100 overflow-hidden shrink-0">
           ${productImageHTML(p.image_url, p.name, 'w-full h-full object-cover')}
         </div>
@@ -55,10 +55,12 @@
           <p class="text-sm font-medium text-navy truncate">${p.name}</p>
           <p class="text-xs text-gray-500">${p.category_name || 'Sans catégorie'} · MOQ ${p.moq}</p>
         </div>
-        <p class="font-display font-bold text-primary shrink-0">${formatPrice(p.price)}</p>
-        <div class="flex gap-2 shrink-0">
-          <a href="shop-product-form.html?id=${p.id}" class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:border-navy hover:text-navy">Modifier</a>
-          <button class="delete-btn text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50">Supprimer</button>
+        <div class="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+          <p class="font-display font-bold text-primary shrink-0">${formatPrice(p.price)}</p>
+          <div class="flex gap-2 shrink-0">
+            <a href="shop-product-form.html?id=${p.id}" class="text-xs px-3 py-1.5 border border-gray-300 rounded-md hover:border-navy hover:text-navy">Modifier</a>
+            <button class="delete-btn text-xs px-3 py-1.5 border border-red-200 text-red-500 rounded-md hover:bg-red-50">Supprimer</button>
+          </div>
         </div>
       </div>
     `;
